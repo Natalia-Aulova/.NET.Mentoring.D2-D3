@@ -55,12 +55,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Entities\ControlTemplates.cs" />
-    <Compile Include="Entities\DownloadTask.cs" />
+    <Compile Include="Entities\DownloadClient.cs" />
     <Compile Include="Entities\Statuses.cs" />
-    <Compile Include="Services\HttpDownloader.cs" />
-    <Compile Include="Services\IDownloader.cs" />
-    <Compile Include="Services\NameHelper.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

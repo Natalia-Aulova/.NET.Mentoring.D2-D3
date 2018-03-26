@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Net;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
-using AsyncAwait.WPF.Services;
 using AsyncAwait.WPF.Entities;
+using Microsoft.Win32;
 
 namespace AsyncAwait.WPF
 {
@@ -15,144 +14,100 @@ namespace AsyncAwait.WPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly IDownloader _downloader;
-        private readonly IList<DownloadTask> _downloadTasks;
+        private readonly ObservableCollection<DownloadClient> _downloadClients;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            _downloader = new HttpDownloader();
-            _downloadTasks = new List<DownloadTask>();
+            _downloadClients = new ObservableCollection<DownloadClient>();
+
+            downloadingItems.ItemsSource = _downloadClients;
         }
 
         private async void buttonDownload_Click(object sender, RoutedEventArgs e)
         {
+            var filePath = filePathLabel.Text;
             var url = urlTextBox.Text;
 
-            var tokenSource = new CancellationTokenSource();
-            CancellationToken token = tokenSource.Token;
-            var downloadTask = _downloader.Load(url, token);
-            var downloadId = AddDownloadTaskToGrid(url);
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                MessageBox.Show("File path must not be empty");
+                return;
+            }
 
-            _downloadTasks.Add(new DownloadTask(downloadId, downloadTask, tokenSource));
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                MessageBox.Show("URL must not be empty");
+                return;
+            }
 
-            var statusBlockName = NameHelper.GetStatusTextBlockName(downloadId);
-            var statusBlock = FindChild<TextBlock>(downloadingItems, statusBlockName);
+            var client = new DownloadClient(url, filePath);
+
+            client.DownloadFileCompleted += DownloadFileCompleted;
+            client.DownloadProgressChanged += DownloadProgressChanged;
+            client.Status = Statuses.InProgress;
+
+            _downloadClients.Add(client);
 
             try
             {
-                var content = await downloadTask;
-                statusBlock.Text = Statuses.Done;
-            }
-            catch (OperationCanceledException)
-            {
-                statusBlock.Text = downloadTask.IsCanceled 
-                    ? Statuses.Canceled 
-                    : Statuses.Faulted;
+                await client.Download();
             }
             catch (Exception)
             {
-                statusBlock.Text = Statuses.Faulted;
             }
             finally
             {
-                var cancelButtonName = NameHelper.GetCancelButtonName(downloadId);
-                var cancelButton = FindChild<Button>(downloadingItems, cancelButtonName);
-                downloadingItems.Children.Remove(cancelButton);
-
-                tokenSource.Dispose();
+                client.Dispose();
             }
         }
 
         private void buttonCancel_Click(object sender, RoutedEventArgs e)
         {
-            var downloadTaskId = NameHelper.GetIdFromCancelButtonName(((Button)sender).Name);
+            var button = (Button)sender;
+            var downloadClient = button.DataContext as DownloadClient;
 
-            _downloadTasks
-                .FirstOrDefault(x => x.Id == downloadTaskId)
-                ?.TokenSource
-                ?.Cancel();
+            downloadClient?.Cancel();
         }
 
-        private int AddDownloadTaskToGrid(string url)
+        private void buttonSaveDialog_Click(object sender, RoutedEventArgs e)
         {
-            TextBlock urlBlock, statusBlock;
-            Button cancelButton;
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "All Files (*.*)|*.*";
+            saveFileDialog.CheckPathExists = true;
+            saveFileDialog.FileName = filePathLabel.Text;
 
-            RowDefinition gridRow;
-            var currentNumber = downloadingItems.RowDefinitions.Count;
-            
-            gridRow = new RowDefinition();
-            gridRow.Height = new GridLength(0, GridUnitType.Auto);
-            downloadingItems.RowDefinitions.Add(gridRow);
-
-            urlBlock = new TextBlock();
-            urlBlock.Text = url;
-
-            statusBlock = new TextBlock();
-            statusBlock.Name = NameHelper.GetStatusTextBlockName(currentNumber);
-            statusBlock.Text = Statuses.InProgress;
-
-            var converter = new BrushConverter();
-
-            cancelButton = new Button();
-            cancelButton.Name = NameHelper.GetCancelButtonName(currentNumber);
-            cancelButton.Content = "Cancel";
-            cancelButton.Background = (Brush)converter.ConvertFrom("#FFFFFF");
-            cancelButton.Foreground = (Brush)converter.ConvertFrom("#000000");
-            cancelButton.Click += buttonCancel_Click;
-
-            AddToGrid(urlBlock, currentNumber, 0);
-            AddToGrid(statusBlock, currentNumber, 1);
-            AddToGrid(cancelButton, currentNumber, 2);
-            
-            return currentNumber;
-        }
-
-        private void AddToGrid(UIElement element, int row, int column)
-        {
-            Grid.SetRow(element, row);
-            Grid.SetColumn(element, column);
-            downloadingItems.Children.Add(element);
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                filePathLabel.Text = saveFileDialog.FileName;
+            }
         }
         
-        private T FindChild<T>(DependencyObject parent, string childName)
-            where T : DependencyObject
+        private void DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            if (parent == null || string.IsNullOrEmpty(childName))
+            (sender as DownloadClient).StatusPercentage = e.ProgressPercentage;
+        }
+
+        private void DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
+        {
+            var client = sender as DownloadClient;
+
+            if (e.Cancelled)
             {
-                return null;
+                client.StatusPercentage = 0;
+                client.Status = Statuses.Canceled;
+                return;
             }
 
-            T foundChild = null;
-
-            int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
-            for (int i = 0; i < childrenCount; i++)
+            if (e.Error != null)
             {
-                var child = VisualTreeHelper.GetChild(parent, i);
-
-                T childType = child as T;
-
-                if (childType == null)
-                {
-                    foundChild = FindChild<T>(child, childName);
-
-                    if (foundChild != null) break;
-                }
-                else
-                {
-                    var frameworkElement = child as FrameworkElement;
-
-                    if (frameworkElement != null && frameworkElement.Name == childName)
-                    {
-                        foundChild = (T)child;
-                        break;
-                    }
-                }
+                client.StatusPercentage = 0;
+                client.Status = Statuses.Faulted;
+                return;
             }
 
-            return foundChild;
+            client.Status = Statuses.Done;
         }
     }
 }
