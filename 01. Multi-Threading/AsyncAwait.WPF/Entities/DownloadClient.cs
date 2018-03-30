@@ -29,7 +29,14 @@ namespace AsyncAwait.WPF.Entities
         public int StatusPercentage
         {
             get { return _statusPercentage; }
-            set { _statusPercentage = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StatusPercentage))); }
+            set
+            {
+                if (_statusPercentage != value)
+                {
+                    _statusPercentage = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StatusPercentage)));
+                }
+            }
         }
 
         public DownloadClient(string url, string filePath)

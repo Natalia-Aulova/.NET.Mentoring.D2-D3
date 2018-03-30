@@ -13,19 +13,16 @@
         <DataTemplate x:Key="downloadingTaskTemplate">
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="100" />
                     <ColumnDefinition Width="50" />
-                    <ColumnDefinition Width="100" />
-                    <ColumnDefinition Width="100" />
-                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"></RowDefinition>
-                </Grid.RowDefinitions>
-                <Button Content="Cancel" Grid.Column="0" Margin="0,0,5,0" Background="#FFFFFF" Foreground="#000000" Click="buttonCancel_Click"/>
+                <TextBlock Text="{Binding Url}" Grid.Column="0" Margin="0,0,5,0" />
                 <ProgressBar Grid.Column="1" Margin="0,0,5,0" Name="progressStatus" Minimum="0" Maximum="100" Value="{Binding StatusPercentage}" />
                 <TextBlock Grid.Column="1" Text="{Binding ElementName=progressStatus, Path=Value, StringFormat={}{0:0}%}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 <TextBlock Text="{Binding Status}" Grid.Column="2" Margin="0,0,5,0" />
-                <TextBlock Text="{Binding Url}" Grid.Column="3" />
+                <Button Content="Cancel" Grid.Column="3" Background="#FFFFFF" Foreground="#000000" Click="buttonCancel_Click"/>
             </Grid>
         </DataTemplate>
     </Window.Resources>
@@ -36,7 +33,13 @@
         <TextBox x:Name="urlTextBox" Height="23" Margin="25,85,135,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top"/>
         <Button x:Name="buttonDownload" Background="#378585" Foreground="#FFFFFF" Content="Download" Margin="0,85,25,0" VerticalAlignment="Top" Height="23" HorizontalAlignment="Right" Width="92" Click="buttonDownload_Click"/>
         <Border Margin="25,125,25,25" Padding="3" BorderBrush="#A9A9A9" BorderThickness="1" Background="#FFFFFF">
-            <ListView x:Name="downloadingItems" ItemTemplate="{StaticResource downloadingTaskTemplate}" />
+            <ListView x:Name="downloadingItems" ItemTemplate="{StaticResource downloadingTaskTemplate}">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
         </Border>
     </Grid>
 </Window>
