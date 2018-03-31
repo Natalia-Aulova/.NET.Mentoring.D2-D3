@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace IQueryableExample.ConsoleApp.Services.E3SClient
+namespace IQueryableExample.Services.E3SClient
 {
     [JsonObject]
     public class Statement

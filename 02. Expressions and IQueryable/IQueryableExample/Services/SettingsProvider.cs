@@ -1,6 +1,6 @@
 ﻿using System.Configuration;
 
-namespace IQueryableExample.ConsoleApp.Services
+namespace IQueryableExample.Services
 {
     public class SettingsProvider : ISettingsProvider
     {

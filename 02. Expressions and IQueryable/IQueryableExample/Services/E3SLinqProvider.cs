@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
-using IQueryableExample.ConsoleApp.Services.E3SClient;
+using IQueryableExample.Services.E3SClient;
 
-namespace IQueryableExample.ConsoleApp.Services
+namespace IQueryableExample.Services
 {
     public class E3SLinqProvider : IQueryProvider
     {

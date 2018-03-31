@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using IQueryableExample.ConsoleApp.Services.E3SClient.Entities;
+using IQueryableExample.Services.E3SClient.Entities;
 
-namespace IQueryableExample.ConsoleApp.Services
+namespace IQueryableExample.Services
 {
     public class E3SEntitySet<T> : IQueryable<T> where T : E3SEntity
     {

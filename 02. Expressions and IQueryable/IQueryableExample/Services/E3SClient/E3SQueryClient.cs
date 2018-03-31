@@ -5,10 +5,10 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using IQueryableExample.ConsoleApp.Services.E3SClient.Entities;
+using IQueryableExample.Services.E3SClient.Entities;
 using Newtonsoft.Json;
 
-namespace IQueryableExample.ConsoleApp.Services.E3SClient
+namespace IQueryableExample.Services.E3SClient
 {
     public class E3SQueryClient
     {

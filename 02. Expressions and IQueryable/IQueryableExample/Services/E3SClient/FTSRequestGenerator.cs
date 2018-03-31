@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace IQueryableExample.ConsoleApp.Services.E3SClient
+namespace IQueryableExample.Services.E3SClient
 {
     public class FTSRequestGenerator
     {

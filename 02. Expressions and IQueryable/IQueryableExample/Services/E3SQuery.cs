@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace IQueryableExample.ConsoleApp.Services
+namespace IQueryableExample.Services
 {
     internal class E3SQuery<T> : IQueryable<T>
     {

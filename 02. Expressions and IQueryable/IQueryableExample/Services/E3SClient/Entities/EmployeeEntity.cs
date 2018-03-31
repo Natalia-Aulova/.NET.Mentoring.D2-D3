@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
-namespace IQueryableExample.ConsoleApp.Services.E3SClient.Entities
+namespace IQueryableExample.Services.E3SClient.Entities
 {
     [E3SMetaType("meta:people-suite:people-api:com.epam.e3s.app.people.api.data.pluggable.EmployeeEntity")]
     public class EmployeeEntity : E3SEntity

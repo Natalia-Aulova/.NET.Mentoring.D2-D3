@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace IQueryableExample.ConsoleApp.Services.E3SClient.Entities
+namespace IQueryableExample.Services.E3SClient.Entities
 {
     public class Skills
     {

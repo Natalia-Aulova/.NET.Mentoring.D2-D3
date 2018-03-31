@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace IQueryableExample.ConsoleApp.Services.E3SClient
+namespace IQueryableExample.Services.E3SClient
 {
     public class Item<T>
     {

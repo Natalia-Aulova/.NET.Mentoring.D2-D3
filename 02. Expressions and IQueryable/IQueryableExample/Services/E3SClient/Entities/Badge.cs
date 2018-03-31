@@ -1,11 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace IQueryableExample.ConsoleApp.Services.E3SClient.Entities
+namespace IQueryableExample.Services.E3SClient.Entities
 {
     public class Badge
     {

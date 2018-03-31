@@ -1,4 +1,4 @@
-﻿namespace IQueryableExample.ConsoleApp.Services
+﻿namespace IQueryableExample.Services
 {
     public interface ISettingsProvider
     {

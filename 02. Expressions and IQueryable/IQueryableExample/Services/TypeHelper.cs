@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace IQueryableExample.ConsoleApp.Services
+namespace IQueryableExample.Services
 {
     internal static class TypeHelper
     {
