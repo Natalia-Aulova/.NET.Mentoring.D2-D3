@@ -12,20 +12,21 @@ namespace IQueryableExample.ConsoleApp.Services.E3SClient
 {
     public class E3SQueryClient
     {
-        private string UserName;
-        private string Password;
-        private Uri BaseAddress = new Uri("https://e3s.epam.com/eco/rest/e3s-eco-scripting-impl/0.1.0");
+        private readonly string _userName;
+        private readonly string _password;
+        private readonly Uri _baseAddress;
 
-        public E3SQueryClient(string user, string password)
+        public E3SQueryClient(string user, string password, string url)
         {
-            UserName = user;
-            Password = password;
+            _userName = user;
+            _password = password;
+            _baseAddress = new Uri(url);
         }
 
         public IEnumerable<T> SearchFTS<T>(string query, int start = 0, int limit = 0) where T : E3SEntity
         {
             HttpClient client = CreateClient();
-            var requestGenerator = new FTSRequestGenerator(BaseAddress);
+            var requestGenerator = new FTSRequestGenerator(_baseAddress);
 
             Uri request = requestGenerator.GenerateRequestUrl<T>(query, start, limit);
 
@@ -37,8 +38,7 @@ namespace IQueryableExample.ConsoleApp.Services.E3SClient
         public IEnumerable SearchFTS(Type type, string query, int start = 0, int limit = 0)
         {
             HttpClient client = CreateClient();
-            var requestGenerator = new FTSRequestGenerator(BaseAddress);
-
+            var requestGenerator = new FTSRequestGenerator(_baseAddress);
             Uri request = requestGenerator.GenerateRequestUrl(type, query, start, limit);
 
             var resultString = client.GetStringAsync(request).Result;
@@ -65,7 +65,7 @@ namespace IQueryableExample.ConsoleApp.Services.E3SClient
 
             var encoding = new ASCIIEncoding();
             var authHeader = new AuthenticationHeaderValue("Basic",
-                Convert.ToBase64String(encoding.GetBytes(string.Format("{0}:{1}", UserName, Password))));
+                Convert.ToBase64String(encoding.GetBytes(string.Format("{0}:{1}", _userName, _password))));
             client.DefaultRequestHeaders.Authorization = authHeader;
 
             return client;

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace IQueryableExample.ConsoleApp.Services
 {
@@ -27,6 +29,7 @@ namespace IQueryableExample.ConsoleApp.Services
 
                 return node;
             }
+
             return base.VisitMethodCall(node);
         }
 
@@ -56,7 +59,7 @@ namespace IQueryableExample.ConsoleApp.Services
 
         protected override Expression VisitMember(MemberExpression node)
         {
-            resultString.Append(node.Member.Name).Append(":");
+            resultString.Append(GetName(node.Member)).Append(":");
 
             return base.VisitMember(node);
         }
@@ -66,6 +69,15 @@ namespace IQueryableExample.ConsoleApp.Services
             resultString.Append(node.Value);
 
             return node;
+        }
+
+        private string GetName(MemberInfo member)
+        {
+            var attr = member.GetCustomAttribute<JsonPropertyAttribute>();
+
+            return attr == null
+                ? member.Name
+                : attr.PropertyName;
         }
     }
 }

@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using IQueryableExample.ConsoleApp.Services;
+using IQueryableExample.ConsoleApp.Services.E3SClient.Entities;
 
 namespace IQueryableExample.ConsoleApp
 {
@@ -10,6 +9,12 @@ namespace IQueryableExample.ConsoleApp
     {
         private static void Main(string[] args)
         {
+            var employees = new E3SEntitySet<EmployeeEntity>(new SettingsProvider());
+
+            foreach (var emp in employees.Where(e => e.WorkStation == "EPBYMINW6641"))
+            {
+                Console.WriteLine("{0} {1}", emp.NativeName, emp.StartWorkDate);
+            }
         }
     }
 }

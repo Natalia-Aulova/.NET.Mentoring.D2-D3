@@ -32,13 +32,6 @@ namespace IQueryableExample.ConsoleApp.Services.E3SClient
     [JsonObject]
     public class FTSQueryRequest
     {
-        public FTSQueryRequest()
-        {
-            //Statements = new List<Statement>();
-            //Filters = new List<Filter>();
-            //Sorting = new SortingCollection();
-        }
-
         [JsonProperty("statements")]
         public List<Statement> Statements { get; set; }
 

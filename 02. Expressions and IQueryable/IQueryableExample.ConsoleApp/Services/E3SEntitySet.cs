@@ -12,11 +12,15 @@ namespace IQueryableExample.ConsoleApp.Services
         protected Expression expression;
         protected IQueryProvider provider;
 
-        public E3SEntitySet(string user, string password)
+        public E3SEntitySet(ISettingsProvider settingsProvider)
         {
+            var user = settingsProvider.GetSetting("user");
+            var password = settingsProvider.GetSetting("password");
+            var apiUrl = settingsProvider.GetSetting("apiUrl");
+
             expression = Expression.Constant(this);
 
-            var client = new E3SClient.E3SQueryClient(user, password);
+            var client = new E3SClient.E3SQueryClient(user, password, apiUrl);
 
             provider = new E3SLinqProvider(client);
         }

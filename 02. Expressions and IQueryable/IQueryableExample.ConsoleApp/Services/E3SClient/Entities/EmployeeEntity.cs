@@ -3,140 +3,85 @@ using System.Collections.Generic;
 
 namespace IQueryableExample.ConsoleApp.Services.E3SClient.Entities
 {
-    [E3SMetaType("meta:people-suite:people-api:com.epam.e3s.app.people.api.data.EmployeeEntity")]
+    [E3SMetaType("meta:people-suite:people-api:com.epam.e3s.app.people.api.data.pluggable.EmployeeEntity")]
     public class EmployeeEntity : E3SEntity
     {
-        [JsonProperty]
-        double entityBoost { get; set; }
+        [JsonProperty(PropertyName = "documentBoost")]
+        public double DocumentBoost { get; set; }
 
-        [JsonProperty]
-        double documentBoost { get; set; }
+        [JsonProperty(PropertyName = "phone")]
+        public List<string> Phones { get; set; }
+        
+        [JsonProperty(PropertyName = "skill")]
+        public Skills Skills { get; set; }
 
-        [JsonProperty]
-        List<string> phone;
+        [JsonProperty(PropertyName = "firstName")]
+        public string FirstName { get; set; }
 
-        [JsonProperty]
-        Skills skill { get; set; }
+        [JsonProperty(PropertyName = "lastName")]
+        public string LastName { get; set; }
 
-        [JsonProperty]
-        List<string> firstname { get; set; }
+        [JsonProperty(PropertyName = "fullName")]
+        public List<string> FullNames { get; set; }
 
-        [JsonProperty]
-        List<string> lastname { get; set; }
+        [JsonProperty(PropertyName = "nativeName")]
+        public string NativeName { get; set; }
 
-        [JsonProperty]
-        List<string> fullname { get; set; }
+        [JsonProperty(PropertyName = "country")]
+        public List<string> Countries { get; set; }
 
-        [JsonProperty]
-        List<string> country { get; set; }
+        [JsonProperty(PropertyName = "city")]
+        public List<string> Cities { get; set; }
 
-        [JsonProperty]
-        List<string> city { get; set; }
+        [JsonProperty(PropertyName = "email")]
+        public List<string> Emails { get; set; }
+        
+        [JsonProperty(PropertyName = "manager")]
+        public string Manager { get; set; }
 
-        [JsonProperty]
-        List<string> email { get; set; }
+        [JsonProperty(PropertyName = "superior")]
+        public string Superior { get; set; }
 
-        [JsonProperty]
-        List<string> skype { get; set; }
+        [JsonProperty(PropertyName = "shortStartWorkDate")]
+        public string StartWorkDate { get; set; }
 
-        [JsonProperty]
-        List<string> social { get; set; }
+        [JsonProperty(PropertyName = "project")]
+        public string Project { get; set; }
 
-        [JsonProperty]
-        List<string> attachment { get; set; }
+        [JsonProperty(PropertyName = "projectAll")]
+        public string ProjectAll { get; set; }
 
-        [JsonProperty]
-        public string manager { get; set; }
+        [JsonProperty(PropertyName = "trainer")]
+        public List<string> Trainers { get; set; }
+        
+        [JsonProperty(PropertyName = "office")]
+        public string Office { get; set; }
 
-        [JsonProperty]
-        public string superior { get; set; }
+        [JsonProperty(PropertyName = "room")]
+        public string Room { get; set; }
 
-        [JsonProperty]
-        public string startworkdate { get; set; }
+        [JsonProperty(PropertyName = "employmentStatus")]
+        public string Status { get; set; }
 
-        [JsonProperty]
-        public string project { get; set; }
+        [JsonProperty(PropertyName = "car")]
+        public string Car { get; set; }
+        
+        [JsonProperty(PropertyName = "badge")]
+        public List<Badge> Badges { get; set; }
+        
+        [JsonProperty(PropertyName = "education")]
+        public List<Education> Education { get; set; }
 
-        [JsonProperty]
-        public string projectall { get; set; }
+        [JsonProperty(PropertyName = "workStation")]
+        public string WorkStation { get; set; }
 
-        [JsonProperty]
-        List<string> trainer { get; set; }
+        [JsonProperty(PropertyName = "workPlace")]
+        public string WorkPlace { get; set; }
 
-        [JsonProperty]
-        List<string> kb { get; set; }
+        [JsonProperty(PropertyName = "billable")]
+        public double Billable { get; set; }
 
-        [JsonProperty]
-        public string certificate { get; set; }
-
-        [JsonProperty]
-        public string unit { get; set; }
-
-        [JsonProperty]
-        public string office { get; set; }
-
-        [JsonProperty]
-        public string room { get; set; }
-
-        [JsonProperty]
-        public string status { get; set; }
-
-        [JsonProperty]
-        public string car { get; set; }
-
-        [JsonProperty]
-        public string birthday { get; set; }
-
-        [JsonProperty]
-        public List<WorkHistory> workhistory { get; set; }
-
-
-        [JsonProperty]
-        List<string> jobfunction { get; set; }
-
-        [JsonProperty]
-        List<Recognition> recognition { get; set; }
-
-        [JsonProperty]
-        List<string> badge { get; set; }
-
-        [JsonProperty]
-        public string dismissal { get; set; }
-
-        [JsonProperty]
-        public string endProbationDate { get; set; }
-
-        [JsonProperty]
-        public string endworkdate { get; set; }
-
-        [JsonProperty]
-        public string errupdatedate { get; set; }
-
-        [JsonProperty]
-        public string edulevel { get; set; }
-
-        [JsonProperty]
-        public string eduschool { get; set; }
-
-        [JsonProperty]
-        public string edufield { get; set; }
-
-        [JsonProperty]
-        public string eduendyear { get; set; }
-
-        [JsonProperty]
-        public string workstation { get; set; }
-
-        [JsonProperty]
-        public string nativename { get; set; }
-
-        [JsonProperty]
-        public string governmentalid { get; set; }
-
-        [JsonProperty]
-        public double billable { get; set; }
-
-        [JsonProperty]
-        public double nonbillable { get; set; }
+        [JsonProperty(PropertyName = "nonBillable")]
+        public double NonBillable { get; set; }
     }
 }

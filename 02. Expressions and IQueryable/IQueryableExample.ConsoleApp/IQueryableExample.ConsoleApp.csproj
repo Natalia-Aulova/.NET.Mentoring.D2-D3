@@ -38,6 +38,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
@@ -52,11 +53,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\E3SClient\E3SMetaTypeAttribute.cs" />
     <Compile Include="Services\E3SClient\E3SQueryClient.cs" />
+    <Compile Include="Services\E3SClient\Entities\Badge.cs" />
     <Compile Include="Services\E3SClient\Entities\E3SEntity.cs" />
+    <Compile Include="Services\E3SClient\Entities\Education.cs" />
     <Compile Include="Services\E3SClient\Entities\EmployeeEntity.cs" />
-    <Compile Include="Services\E3SClient\Entities\Recognition.cs" />
     <Compile Include="Services\E3SClient\Entities\Skills.cs" />
-    <Compile Include="Services\E3SClient\Entities\WorkHistory.cs" />
     <Compile Include="Services\E3SClient\FTSQueryRequest.cs" />
     <Compile Include="Services\E3SClient\FTSRequestGenerator.cs" />
     <Compile Include="Services\E3SClient\FTSResponse.cs" />
@@ -64,6 +65,8 @@
     <Compile Include="Services\E3SLinqProvider.cs" />
     <Compile Include="Services\E3SQuery.cs" />
     <Compile Include="Services\ExpressionToFTSRequestTranslator.cs" />
+    <Compile Include="Services\ISettingsProvider.cs" />
+    <Compile Include="Services\SettingsProvider.cs" />
     <Compile Include="Services\TypeHelper.cs" />
   </ItemGroup>
   <ItemGroup>

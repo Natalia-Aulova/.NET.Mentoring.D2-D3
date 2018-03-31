@@ -60,6 +60,5 @@ namespace IQueryableExample.ConsoleApp.Services.E3SClient
 
             return ((E3SMetaTypeAttribute)attributes[0]).Name;
         }
-
     }
 }

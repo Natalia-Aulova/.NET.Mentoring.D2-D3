@@ -4,49 +4,49 @@ namespace IQueryableExample.ConsoleApp.Services.E3SClient.Entities
 {
     public class Skills
     {
-        [JsonProperty]
-        public string nativespeaker { get; set; }
+        [JsonProperty(PropertyName = "nativespeaker")]
+        public string NativeSpeaker { get; set; }
 
-        [JsonProperty]
-        public string expert { get; set; }
+        [JsonProperty(PropertyName = "expert")]
+        public string Expert { get; set; }
 
-        [JsonProperty]
-        public string advanced { get; set; }
+        [JsonProperty(PropertyName = "advanced")]
+        public string Advanced { get; set; }
 
-        [JsonProperty]
-        public string intermediate { get; set; }
+        [JsonProperty(PropertyName = "intermediate")]
+        public string Intermediate { get; set; }
 
-        [JsonProperty]
-        public string novice { get; set; }
+        [JsonProperty(PropertyName = "novice")]
+        public string Novice { get; set; }
 
-        [JsonProperty]
-        public string position { get; set; }
+        [JsonProperty(PropertyName = "position")]
+        public string Position { get; set; }
 
-        [JsonProperty]
-        public string os { get; set; }
+        [JsonProperty(PropertyName = "os")]
+        public string Os { get; set; }
 
-        [JsonProperty]
-        public string db { get; set; }
+        [JsonProperty(PropertyName = "db")]
+        public string Db { get; set; }
 
-        [JsonProperty]
-        public string platform { get; set; }
+        [JsonProperty(PropertyName = "platform")]
+        public string Platform { get; set; }
 
-        [JsonProperty]
-        public string industry { get; set; }
+        [JsonProperty(PropertyName = "industry")]
+        public string Industry { get; set; }
 
-        [JsonProperty]
-        public string proglang { get; set; }
+        [JsonProperty(PropertyName = "proglang")]
+        public string Proglang { get; set; }
 
-        [JsonProperty]
-        public string language { get; set; }
+        [JsonProperty(PropertyName = "language")]
+        public string Language { get; set; }
 
-        [JsonProperty]
-        public string other { get; set; }
+        [JsonProperty(PropertyName = "other")]
+        public string Other { get; set; }
 
-        [JsonProperty]
-        public string primary { get; set; }
+        [JsonProperty(PropertyName = "primary")]
+        public string Primary { get; set; }
 
-        [JsonProperty]
-        public string category { get; set; }
+        [JsonProperty(PropertyName = "category")]
+        public string Category { get; set; }
     }
 }
