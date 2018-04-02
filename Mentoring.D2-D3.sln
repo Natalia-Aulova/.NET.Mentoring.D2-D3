@@ -15,8 +15,13 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncAwait.WPF", "01. Multi-Threading\AsyncAwait.WPF\AsyncAwait.WPF.csproj", "{3EBA8783-EC05-41EE-A477-9212AC7F21A3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Expressions and IQueryable", "02. Expressions and IQueryable", "{2FDD6307-D051-4C77-B015-64F9D7532C74}"
+	ProjectSection(SolutionItems) = preProject
+		02. Expressions and IQueryable\ReadMe.txt = 02. Expressions and IQueryable\ReadMe.txt
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IQueryableExample", "02. Expressions and IQueryable\IQueryableExample\IQueryableExample.csproj", "{F1698DBA-D83D-4395-8F9E-69A72878D257}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressionTreeExample", "02. Expressions and IQueryable\ExpressionTreeExample\ExpressionTreeExample.csproj", "{79BFE51A-88EF-447F-8B57-49F3E4BC7D39}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +45,10 @@ Global
 		{F1698DBA-D83D-4395-8F9E-69A72878D257}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1698DBA-D83D-4395-8F9E-69A72878D257}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1698DBA-D83D-4395-8F9E-69A72878D257}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79BFE51A-88EF-447F-8B57-49F3E4BC7D39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79BFE51A-88EF-447F-8B57-49F3E4BC7D39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79BFE51A-88EF-447F-8B57-49F3E4BC7D39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79BFE51A-88EF-447F-8B57-49F3E4BC7D39}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,5 +58,6 @@ Global
 		{4CEE62D8-D4C8-4CD3-B336-045718A6370D} = {8AF3731B-06BF-4771-AB86-C9C2DC7DDA5E}
 		{3EBA8783-EC05-41EE-A477-9212AC7F21A3} = {8AF3731B-06BF-4771-AB86-C9C2DC7DDA5E}
 		{F1698DBA-D83D-4395-8F9E-69A72878D257} = {2FDD6307-D051-4C77-B015-64F9D7532C74}
+		{79BFE51A-88EF-447F-8B57-49F3E4BC7D39} = {2FDD6307-D051-4C77-B015-64F9D7532C74}
 	EndGlobalSection
 EndGlobal
