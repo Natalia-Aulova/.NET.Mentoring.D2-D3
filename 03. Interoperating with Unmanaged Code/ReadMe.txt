@@ -10,22 +10,22 @@
 
 2. Based on this library create a COM component which will be accessible from script languages and VBA (with IDispatch support).
 
-3. Write a test script (based on VBScript/JScript) which works with the library.
+3. Write test scripts (based on VBScript/JScript) which work with the library.
 
 
 Development notes:
 
 1) To register DLL as a COM component:
 	a) Go to the folder which contains DLL;
-	b) Run the following command:
+	b) Run the following command in CMD:
 	   C:\Windows\Microsoft.NET\Framework64\v4.0.30319\RegAsm.exe UnmanagedCode.PowerManagement.dll /tlb /codebase
 
 2) To unregister DLL as a COM component:
 	a) Go to the folder which contains DLL;
-	b) Run the following command:
+	b) Run the following command in CMD:
 	   C:\Windows\Microsoft.NET\Framework64\v4.0.30319\RegAsm.exe UnmanagedCode.PowerManagement.dll /unregister
 
 3) To run JScript file:
 	a) Go to the folder which contains JScript file;
-	b) Run the following command:
+	b) Run the following command in CMD:
 	   cscript powerManagementService_test.js

@@ -15,5 +15,9 @@ namespace UnmanagedCode.PowerManagement.Interfaces
         SystemBatteryState GetSystemBatteryState();
 
         SystemPowerInformation GetSystemPowerInformation();
+
+        void Sleep();
+
+        void Hibernate();
     }
 }

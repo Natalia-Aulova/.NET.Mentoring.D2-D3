@@ -54,6 +54,16 @@ namespace UnmanagedCode.PowerManagement
             };
         }
 
+        public void Sleep()
+        {
+            SetSuspendState(false, false, false);
+        }
+
+        public void Hibernate()
+        {
+            SetSuspendState(true, false, false);
+        }
+
         private T GetInformation<T>(int informationLevel)
         {
             var bufferSize = Marshal.SizeOf(typeof(T));
@@ -84,6 +94,13 @@ namespace UnmanagedCode.PowerManagement
             [In] int nInputBufferSize,
             [Out] IntPtr lpOutputBuffer,
             [In] int nOutputBufferSize
+        );
+
+        [DllImport("powrprof.dll", SetLastError = true)]
+        private static extern bool SetSuspendState(
+            [In] bool hibernate,
+            [In] bool forceCritical,
+            [In] bool disableWakeEvent
         );
     }
 }

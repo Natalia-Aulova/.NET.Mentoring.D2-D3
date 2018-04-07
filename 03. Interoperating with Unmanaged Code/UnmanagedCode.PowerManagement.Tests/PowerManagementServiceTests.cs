@@ -51,5 +51,19 @@ namespace UnmanagedCode.PowerManagement.Tests
             Console.WriteLine($"Time Remaining: {powerInfo.TimeRemaining}");
             Console.WriteLine($"Cooling Mode: {powerInfo.CoolingMode}");
         }
+
+        [TestMethod]
+        public void Test_Sleep()
+        {
+            var service = new PowerManagementService();
+            service.Sleep();
+        }
+
+        [TestMethod]
+        public void Test_Hibernate()
+        {
+            var service = new PowerManagementService();
+            service.Hibernate();
+        }
     }
 }
