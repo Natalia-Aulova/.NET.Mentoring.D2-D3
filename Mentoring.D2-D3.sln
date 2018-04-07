@@ -23,6 +23,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IQueryableExample", "02. Ex
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressionTreeExample", "02. Expressions and IQueryable\ExpressionTreeExample\ExpressionTreeExample.csproj", "{79BFE51A-88EF-447F-8B57-49F3E4BC7D39}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03. Interoperating with Unmanaged Code", "03. Interoperating with Unmanaged Code", "{EC85650C-880E-4A8D-B92A-6609C99B07B5}"
+	ProjectSection(SolutionItems) = preProject
+		03. Interoperating with Unmanaged Code\powerManagementService_test.js = 03. Interoperating with Unmanaged Code\powerManagementService_test.js
+		03. Interoperating with Unmanaged Code\ReadMe.txt = 03. Interoperating with Unmanaged Code\ReadMe.txt
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnmanagedCode.PowerManagement", "03. Interoperating with Unmanaged Code\UnmanagedCode.PowerManagement\UnmanagedCode.PowerManagement.csproj", "{6E1A45AF-2FEA-4897-BF75-94AB4A8FB54D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnmanagedCode.PowerManagement.Tests", "03. Interoperating with Unmanaged Code\UnmanagedCode.PowerManagement.Tests\UnmanagedCode.PowerManagement.Tests.csproj", "{2901EA24-9EF8-47FE-AE86-D3C9CE86A083}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +59,14 @@ Global
 		{79BFE51A-88EF-447F-8B57-49F3E4BC7D39}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79BFE51A-88EF-447F-8B57-49F3E4BC7D39}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79BFE51A-88EF-447F-8B57-49F3E4BC7D39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E1A45AF-2FEA-4897-BF75-94AB4A8FB54D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E1A45AF-2FEA-4897-BF75-94AB4A8FB54D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E1A45AF-2FEA-4897-BF75-94AB4A8FB54D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E1A45AF-2FEA-4897-BF75-94AB4A8FB54D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2901EA24-9EF8-47FE-AE86-D3C9CE86A083}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2901EA24-9EF8-47FE-AE86-D3C9CE86A083}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2901EA24-9EF8-47FE-AE86-D3C9CE86A083}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2901EA24-9EF8-47FE-AE86-D3C9CE86A083}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,5 +77,7 @@ Global
 		{3EBA8783-EC05-41EE-A477-9212AC7F21A3} = {8AF3731B-06BF-4771-AB86-C9C2DC7DDA5E}
 		{F1698DBA-D83D-4395-8F9E-69A72878D257} = {2FDD6307-D051-4C77-B015-64F9D7532C74}
 		{79BFE51A-88EF-447F-8B57-49F3E4BC7D39} = {2FDD6307-D051-4C77-B015-64F9D7532C74}
+		{6E1A45AF-2FEA-4897-BF75-94AB4A8FB54D} = {EC85650C-880E-4A8D-B92A-6609C99B07B5}
+		{2901EA24-9EF8-47FE-AE86-D3C9CE86A083} = {EC85650C-880E-4A8D-B92A-6609C99B07B5}
 	EndGlobalSection
 EndGlobal
