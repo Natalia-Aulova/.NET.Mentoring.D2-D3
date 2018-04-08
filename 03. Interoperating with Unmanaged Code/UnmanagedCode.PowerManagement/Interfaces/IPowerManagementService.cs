@@ -19,5 +19,7 @@ namespace UnmanagedCode.PowerManagement.Interfaces
         void Sleep();
 
         void Hibernate();
+
+        bool ReserveHiberFile(bool reserveHiberFile);
     }
 }

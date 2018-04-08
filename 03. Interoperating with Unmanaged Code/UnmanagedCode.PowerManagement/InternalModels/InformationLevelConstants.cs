@@ -11,5 +11,7 @@
         internal const int SystemPowerInformation = 12;
 
         internal const int SystemReserveHiberFile = 10;
+
+        internal const int SystemPowerCapabilities = 4;
     }
 }

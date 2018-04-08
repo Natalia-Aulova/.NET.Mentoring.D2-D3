@@ -27,6 +27,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03. Interoperating with Unm
 	ProjectSection(SolutionItems) = preProject
 		03. Interoperating with Unmanaged Code\powerManagementService_test.js = 03. Interoperating with Unmanaged Code\powerManagementService_test.js
 		03. Interoperating with Unmanaged Code\powerManagementService_test_hibernate.js = 03. Interoperating with Unmanaged Code\powerManagementService_test_hibernate.js
+		03. Interoperating with Unmanaged Code\powerManagementService_test_reserve_hiber_file.js = 03. Interoperating with Unmanaged Code\powerManagementService_test_reserve_hiber_file.js
 		03. Interoperating with Unmanaged Code\powerManagementService_test_sleep.js = 03. Interoperating with Unmanaged Code\powerManagementService_test_sleep.js
 		03. Interoperating with Unmanaged Code\ReadMe.txt = 03. Interoperating with Unmanaged Code\ReadMe.txt
 	EndProjectSection

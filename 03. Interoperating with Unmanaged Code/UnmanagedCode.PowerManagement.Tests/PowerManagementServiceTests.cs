@@ -53,17 +53,11 @@ namespace UnmanagedCode.PowerManagement.Tests
         }
 
         [TestMethod]
-        public void Test_Sleep()
+        public void Test_ReserveHiberFile()
         {
             var service = new PowerManagementService();
-            service.Sleep();
-        }
-
-        [TestMethod]
-        public void Test_Hibernate()
-        {
-            var service = new PowerManagementService();
-            service.Hibernate();
+            service.ReserveHiberFile(false);
+            service.ReserveHiberFile(true);
         }
     }
 }

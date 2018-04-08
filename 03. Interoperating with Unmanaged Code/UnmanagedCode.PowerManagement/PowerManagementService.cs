@@ -64,6 +64,32 @@ namespace UnmanagedCode.PowerManagement
             SetSuspendState(true, false, false);
         }
 
+        public bool ReserveHiberFile(bool reserveHiberFile)
+        {
+            var bufferSize = Marshal.SizeOf(typeof(bool));
+            var buffer = IntPtr.Zero;
+
+            try
+            {
+                buffer = Marshal.AllocCoTaskMem(bufferSize);
+                Marshal.StructureToPtr(reserveHiberFile, buffer, true);
+                var retval = CallNtPowerInformation(InformationLevelConstants.SystemReserveHiberFile, buffer, bufferSize, IntPtr.Zero, 0);
+
+                if (retval != SuccessStatus)
+                {
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                }
+            }
+            finally
+            {
+                Marshal.FreeCoTaskMem(buffer);
+            }
+
+            var powerCapabilities = GetInformation<SystemPowerCapabilitiesInternal>(InformationLevelConstants.SystemPowerCapabilities);
+
+            return powerCapabilities.HiberFilePresent == reserveHiberFile;
+        }
+
         private T GetInformation<T>(int informationLevel)
         {
             var bufferSize = Marshal.SizeOf(typeof(T));
@@ -97,10 +123,11 @@ namespace UnmanagedCode.PowerManagement
         );
 
         [DllImport("powrprof.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.I1)]
         private static extern bool SetSuspendState(
-            [In] bool hibernate,
-            [In] bool forceCritical,
-            [In] bool disableWakeEvent
+            [In, MarshalAs(UnmanagedType.I1)] bool hibernate,
+            [In, MarshalAs(UnmanagedType.I1)] bool forceCritical,
+            [In, MarshalAs(UnmanagedType.I1)] bool disableWakeEvent
         );
     }
 }
