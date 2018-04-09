@@ -16,17 +16,17 @@ namespace UnmanagedCode.PowerManagement
 
         public ulong GetLastSleepTime()
         {
-            return GetInformation<ulong>(InformationLevelConstants.LastSleepTime);
+            return GetValue<ulong>(InformationLevelConstants.LastSleepTime);
         }
 
         public ulong GetLastWakeTime()
         {
-            return GetInformation<ulong>(InformationLevelConstants.LastWakeTime);
+            return GetValue<ulong>(InformationLevelConstants.LastWakeTime);
         }
 
         public SystemBatteryState GetSystemBatteryState()
         {
-            var info = GetInformation<SystemBatteryStateInternal>(InformationLevelConstants.SystemBatteryState);
+            var info = GetValue<SystemBatteryStateInternal>(InformationLevelConstants.SystemBatteryState);
 
             return new SystemBatteryState
             {
@@ -43,7 +43,7 @@ namespace UnmanagedCode.PowerManagement
 
         public SystemPowerInformation GetSystemPowerInformation()
         {
-            var info = GetInformation<SystemPowerInformationInternal>(InformationLevelConstants.SystemPowerInformation);
+            var info = GetValue<SystemPowerInformationInternal>(InformationLevelConstants.SystemPowerInformation);
 
             return new SystemPowerInformation
             {
@@ -66,38 +66,18 @@ namespace UnmanagedCode.PowerManagement
 
         public bool ReserveHiberFile(bool reserveHiberFile)
         {
-            var bufferSize = Marshal.SizeOf(typeof(bool));
-            var buffer = IntPtr.Zero;
-
-            try
-            {
-                buffer = Marshal.AllocCoTaskMem(bufferSize);
-                Marshal.StructureToPtr(reserveHiberFile, buffer, true);
-                var retval = CallNtPowerInformation(InformationLevelConstants.SystemReserveHiberFile, buffer, bufferSize, IntPtr.Zero, 0);
-
-                if (retval != SuccessStatus)
-                {
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-                }
-            }
-            finally
-            {
-                Marshal.FreeCoTaskMem(buffer);
-            }
-
-            var powerCapabilities = GetInformation<SystemPowerCapabilitiesInternal>(InformationLevelConstants.SystemPowerCapabilities);
+            SetValue(InformationLevelConstants.SystemReserveHiberFile, reserveHiberFile);
+            var powerCapabilities = GetValue<SystemPowerCapabilitiesInternal>(InformationLevelConstants.SystemPowerCapabilities);
 
             return powerCapabilities.HiberFilePresent == reserveHiberFile;
         }
-
-        private T GetInformation<T>(int informationLevel)
+        
+        private T GetValue<T>(int informationLevel)
         {
-            var bufferSize = Marshal.SizeOf(typeof(T));
-            var buffer = IntPtr.Zero;
+            var result = default(T);
 
-            try
+            PerformActionWithBuffer<T>((buffer, bufferSize) =>
             {
-                buffer = Marshal.AllocCoTaskMem(bufferSize);
                 var retval = CallNtPowerInformation(informationLevel, IntPtr.Zero, 0, buffer, bufferSize);
 
                 if (retval != SuccessStatus)
@@ -105,7 +85,35 @@ namespace UnmanagedCode.PowerManagement
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
 
-                return Marshal.PtrToStructure<T>(buffer);
+                result = Marshal.PtrToStructure<T>(buffer);
+            });
+
+            return result;
+        }
+
+        private void SetValue<T>(int informationLevel, T value)
+        {
+            PerformActionWithBuffer<T>((buffer, bufferSize) =>
+            {
+                Marshal.StructureToPtr(value, buffer, true);
+                var retval = CallNtPowerInformation(informationLevel, buffer, bufferSize, IntPtr.Zero, 0);
+
+                if (retval != SuccessStatus)
+                {
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                }
+            });
+        }
+
+        private void PerformActionWithBuffer<T>(Action<IntPtr, int> action)
+        {
+            var bufferSize = Marshal.SizeOf(typeof(T));
+            var buffer = IntPtr.Zero;
+
+            try
+            {
+                buffer = Marshal.AllocCoTaskMem(bufferSize);
+                action(buffer, bufferSize);
             }
             finally
             {
@@ -115,7 +123,7 @@ namespace UnmanagedCode.PowerManagement
 
         [DllImport("powrprof.dll", SetLastError = true)]
         private static extern uint CallNtPowerInformation(
-            [In] int InformationLevel,
+            [In] int informationLevel,
             [In] IntPtr lpInputBuffer,
             [In] int nInputBufferSize,
             [Out] IntPtr lpOutputBuffer,
