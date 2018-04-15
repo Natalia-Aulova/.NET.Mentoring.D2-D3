@@ -36,6 +36,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnmanagedCode.PowerManageme
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnmanagedCode.PowerManagement.Tests", "03. Interoperating with Unmanaged Code\UnmanagedCode.PowerManagement.Tests\UnmanagedCode.PowerManagement.Tests.csproj", "{2901EA24-9EF8-47FE-AE86-D3C9CE86A083}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04. Windows Services", "04. Windows Services", "{D6E0A0F3-F32C-4641-BE1D-35F28F15E3B3}"
+	ProjectSection(SolutionItems) = preProject
+		04. Windows Services\ReadMe.txt = 04. Windows Services\ReadMe.txt
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsService.FileHandler", "04. Windows Services\WindowsService.FileHandler\WindowsService.FileHandler.csproj", "{5AA06243-CC8B-4FFE-A13D-050BA145B5AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -70,6 +77,10 @@ Global
 		{2901EA24-9EF8-47FE-AE86-D3C9CE86A083}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2901EA24-9EF8-47FE-AE86-D3C9CE86A083}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2901EA24-9EF8-47FE-AE86-D3C9CE86A083}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AA06243-CC8B-4FFE-A13D-050BA145B5AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AA06243-CC8B-4FFE-A13D-050BA145B5AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AA06243-CC8B-4FFE-A13D-050BA145B5AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AA06243-CC8B-4FFE-A13D-050BA145B5AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -82,5 +93,6 @@ Global
 		{79BFE51A-88EF-447F-8B57-49F3E4BC7D39} = {2FDD6307-D051-4C77-B015-64F9D7532C74}
 		{6E1A45AF-2FEA-4897-BF75-94AB4A8FB54D} = {EC85650C-880E-4A8D-B92A-6609C99B07B5}
 		{2901EA24-9EF8-47FE-AE86-D3C9CE86A083} = {EC85650C-880E-4A8D-B92A-6609C99B07B5}
+		{5AA06243-CC8B-4FFE-A13D-050BA145B5AD} = {D6E0A0F3-F32C-4641-BE1D-35F28F15E3B3}
 	EndGlobalSection
 EndGlobal
