@@ -1,4 +1,5 @@
-﻿using WindowsService.FileHandler.Interfaces;
+﻿using NLog;
+using WindowsService.FileHandler.Interfaces;
 
 namespace WindowsService.FileHandler.Services
 {
@@ -15,7 +16,7 @@ namespace WindowsService.FileHandler.Services
 
         public IFileWatcher GetWatcher()
         {
-            return new FileWatcher(_nameHelper, _pdfService);
+            return new FileWatcher(_nameHelper, _pdfService, LogManager.GetLogger(nameof(FileWatcher)));
         }
     }
 }

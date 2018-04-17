@@ -8,7 +8,7 @@ namespace WindowsService.FileHandler.Helpers
         private static readonly byte[] _jpg = new byte[] { 0xFF, 0xD8, 0xFF };
         private static readonly byte[] _bmp = new byte[] { 0x42, 0x4D };
 
-        public static bool IsImage(byte[] bytes)
+        public static bool IsImage(this byte[] bytes)
         {
             if (bytes == null || bytes.Length == 0)
             {

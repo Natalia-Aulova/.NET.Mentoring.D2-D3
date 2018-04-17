@@ -11,3 +11,24 @@
    Notes:
    a) Documents should be saved in PDF format;
    b) The service should be implemented based on Topshelf.
+
+2. Be sure that the service processes the following situations correctly:
+   a) A source file which should be processed is used by other process 
+     (possible solution: try several times to open and only after that an error should be thrown);
+   b) A command was issued to stop the service during a long operation (e.g. creating multipage file from a large count of pages);
+   c) One or more pages of multipage file are broken (e.g. wrong format).
+      Possible solution: moving a whole sequence of pages to a folder for broken files.
+	  A broken file can be created by changing an extension of a file which is not an image.
+
+Implementation notes:
+	To run the following commands go to a folder which contains .exe file of the service and open CMD.
+	1) To install the service:
+	   WindowsService.FileHandler.exe install --sudo
+	2) To uninstall the service:
+	   WindowsService.FileHandler.exe uninstall --sudo
+	3) To start the service:
+	   WindowsService.FileHandler.exe start
+	4) To stop the service:
+	   WindowsService.FileHandler.exe stop
+	5) To get help for other commands of the service:
+	   WindowsService.FileHandler.exe --help
