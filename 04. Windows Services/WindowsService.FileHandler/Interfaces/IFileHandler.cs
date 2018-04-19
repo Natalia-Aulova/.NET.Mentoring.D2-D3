@@ -1,6 +1,6 @@
 ﻿namespace WindowsService.FileHandler.Interfaces
 {
-    public interface IFileWatcher
+    public interface IFileHandler
     {
         void Start(string sourceFolderPath, string destinationFolderPath, int saveTimeout);
 

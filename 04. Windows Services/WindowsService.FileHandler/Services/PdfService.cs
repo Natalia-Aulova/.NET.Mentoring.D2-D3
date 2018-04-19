@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using NLog;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
@@ -16,6 +18,7 @@ namespace WindowsService.FileHandler.Services
 
         private readonly int _retryCount;
         private readonly int _retryDelay;
+        private readonly string _brokenFolderName;
 
         public PdfService(ISettingsProvider settingsProvider, ILogger logger)
         {
@@ -23,6 +26,7 @@ namespace WindowsService.FileHandler.Services
 
             _retryCount = int.Parse(settingsProvider.GetSetting("RetryCount"));
             _retryDelay = int.Parse(settingsProvider.GetSetting("RetryDelay")) * 1000;
+            _brokenFolderName = settingsProvider.GetSetting("BrokenFolderName");
         }
 
         public PdfDocument CreateDocument()
@@ -31,17 +35,19 @@ namespace WindowsService.FileHandler.Services
             return new PdfDocument();
         }
 
-        public void AddImage(string imagePath, PdfDocument document)
+        public bool AddImage(string imagePath, PdfDocument document)
         {
-            var bytes = new byte[8];
+            bool success = true;
 
             OpenFileWithRetries(imagePath, stream =>
             {
+                var bytes = new byte[8];
                 stream.Read(bytes, 0, 8);
 
                 if (!bytes.IsImage())
                 {
                     _logger.Warn($"The file {imagePath} is not an image. Skipping the file.");
+                    success = false;
                     return;
                 }
 
@@ -62,6 +68,8 @@ namespace WindowsService.FileHandler.Services
 
                 _logger.Debug($"The image {imagePath} has been added to the document.");
             });
+
+            return success;
         }
 
         public void SaveDocument(string destinatonPath, PdfDocument document)
@@ -75,6 +83,35 @@ namespace WindowsService.FileHandler.Services
             document.Close();
         }
 
+        public async Task CopyBrokenSequenceToFolder(IList<string> sequence, string pdfFilePath, string destinationFolderPath, CancellationToken token)
+        {
+            await Task.Factory.StartNew(() =>
+            {
+                token.ThrowIfCancellationRequested();
+
+                var pdfFileName = Path.GetFileNameWithoutExtension(pdfFilePath);
+                var brokenFolderPath = Path.Combine(destinationFolderPath, _brokenFolderName, pdfFileName);
+
+                if (!Directory.Exists(brokenFolderPath))
+                {
+                    Directory.CreateDirectory(brokenFolderPath);
+                }
+
+                File.Move(pdfFilePath, Path.Combine(brokenFolderPath, Path.GetFileName(pdfFilePath)));
+
+                for (int i = 0; i < sequence.Count; i++)
+                {
+                    token.ThrowIfCancellationRequested();
+
+                    var destinationPath = Path.Combine(brokenFolderPath, Path.GetFileName(sequence[i]));
+
+                    _logger.Warn($"Broken sequence: copying {sequence[i]} to {destinationPath}.");
+
+                    CopyFile(sequence[i], destinationPath);
+                }
+            }, token);
+        }
+
         private void OpenFileWithRetries(string path, Action<Stream> action)
         {
             Stream stream = null;
@@ -85,7 +122,7 @@ namespace WindowsService.FileHandler.Services
             {
                 try
                 {
-                    _logger.Debug($"Attempt {i}.");
+                    _logger.Debug($"{path} - attempt {i}.");
                     stream = File.OpenRead(path);
                     break;
                 }
@@ -112,6 +149,17 @@ namespace WindowsService.FileHandler.Services
 
             action(stream);
             stream?.Dispose();
+        }
+
+        private void CopyFile(string sourcePath, string destinationPath)
+        {
+            OpenFileWithRetries(sourcePath, source =>
+            {
+                using (var destination = File.Open(destinationPath, FileMode.Create, FileAccess.Write))
+                {
+                    source.CopyTo(destination);
+                }
+            });
         }
     }
 }

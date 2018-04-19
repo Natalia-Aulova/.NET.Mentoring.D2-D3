@@ -13,7 +13,7 @@ namespace WindowsService.FileHandler
             var settingsProvider = new SettingsProvider();
             var nameHelper = new FileNameHelper(settingsProvider);
             var pdfService = new PdfService(settingsProvider, LogManager.GetLogger(nameof(PdfService)));
-            var watcherFactory = new FileWatcherFactory(nameHelper, pdfService);
+            var watcherFactory = new FileHandlerFactory(nameHelper, pdfService);
 
             HostFactory.Run(x =>
             {

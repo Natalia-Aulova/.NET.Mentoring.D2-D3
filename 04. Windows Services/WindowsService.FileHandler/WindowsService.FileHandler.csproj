@@ -68,16 +68,16 @@
     <Compile Include="FileHandlerService.cs" />
     <Compile Include="Helpers\FileNameHelper.cs" />
     <Compile Include="Helpers\ImageTypeHelper.cs" />
-    <Compile Include="Interfaces\IFileWatcher.cs" />
-    <Compile Include="Interfaces\IFileWatcherFactory.cs" />
+    <Compile Include="Interfaces\IFileHandler.cs" />
+    <Compile Include="Interfaces\IFileHandlerFactory.cs" />
     <Compile Include="Interfaces\INameHelper.cs" />
     <Compile Include="Interfaces\IPdfService.cs" />
     <Compile Include="Interfaces\ISettingsProvider.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\SettingsProvider.cs" />
-    <Compile Include="Services\FileWatcher.cs" />
-    <Compile Include="Services\FileWatcherFactory.cs" />
+    <Compile Include="Services\FileHandler.cs" />
+    <Compile Include="Services\FileHandlerFactory.cs" />
     <Compile Include="Services\PdfService.cs" />
   </ItemGroup>
   <ItemGroup>

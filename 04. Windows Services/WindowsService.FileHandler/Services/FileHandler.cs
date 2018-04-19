@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,13 +9,14 @@ using WindowsService.FileHandler.Interfaces;
 
 namespace WindowsService.FileHandler.Services
 {
-    public class FileWatcher : IFileWatcher
+    public class FileHandler : IFileHandler
     {
-        private static object lockObject = new object();
+        private object lockObject = new object();
 
         private readonly CancellationTokenSource _tokenSource;
 
         private volatile int _sequenceNumber = 0;
+        private readonly List<string> _sequenceFileNames;
         private PdfDocument _pdfDocument;
 
         private readonly INameHelper _nameHelper;
@@ -27,12 +29,13 @@ namespace WindowsService.FileHandler.Services
         private FileSystemWatcher _fileSystemWatcher;
         private Timer _savingTimer;
 
-        public FileWatcher(INameHelper nameHelper, IPdfService pdfService, ILogger logger)
+        public FileHandler(INameHelper nameHelper, IPdfService pdfService, ILogger logger)
         {
             _tokenSource = new CancellationTokenSource();
             _nameHelper = nameHelper;
             _pdfService = pdfService;
             _logger = logger;
+            _sequenceFileNames = new List<string>();
             _savingTimer = new Timer(TimerCallback);
             _fileSystemWatcher = new FileSystemWatcher();
             _fileSystemWatcher.IncludeSubdirectories = false;
@@ -87,12 +90,13 @@ namespace WindowsService.FileHandler.Services
             lock (lockObject)
             {
                 _pdfService.SaveDocument(GetDestinationPath(), _pdfDocument);
+                _sequenceFileNames.Clear();
             }
 
             _logger.Info("The file watcher has stopped.");
         }
 
-        private void FileSystemWatcher_Created(object sender, FileSystemEventArgs e)
+        private async void FileSystemWatcher_Created(object sender, FileSystemEventArgs e)
         {
             if (_tokenSource.IsCancellationRequested)
             {
@@ -109,32 +113,74 @@ namespace WindowsService.FileHandler.Services
             if (number - _sequenceNumber != 1)
             {
                 _logger.Debug(@"""Jumping"" numbering has been detected. Starting new document.");
-                StartNewDocument();
+                StartNewDocument(GetDestinationPath());
             }
+
+            _logger.Debug("Adding new file to the document.");
+
+            bool success;
 
             lock (lockObject)
             {
-                _logger.Debug("Adding new file to the document.");
-                _pdfService.AddImage(e.FullPath, _pdfDocument);
+                _sequenceFileNames.Add(e.FullPath);
                 _sequenceNumber = number;
+                success = _pdfService.AddImage(e.FullPath, _pdfDocument);
+            }
+
+            if (!success)
+            {
+                _logger.Warn("Broken sequence has been detected.");
+                await HandleBrokenSequence();
             }
 
             _savingTimer.Change(_timeout, _timeout);
         }
 
-        private void StartNewDocument()
+        private async Task HandleBrokenSequence()
+        {
+            string[] brokenSequence;
+
+            lock (lockObject)
+            {
+                brokenSequence = new string[_sequenceFileNames.Count];
+                _sequenceFileNames.CopyTo(brokenSequence);
+            }
+
+            var pdfFilePath = GetDestinationPath();
+            StartNewDocument(pdfFilePath);
+
+            try
+            {
+                await _pdfService.CopyBrokenSequenceToFolder(brokenSequence, pdfFilePath, _destinationFolderPath, _tokenSource.Token);
+            }
+            catch (OperationCanceledException ex)
+            {
+                _logger.Warn(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, ex.Message);
+                throw;
+            }
+        }
+
+        private void StartNewDocument(string destinationPath)
         {
             lock (lockObject)
             {
-                _pdfService.SaveDocument(GetDestinationPath(), _pdfDocument);
-                _pdfDocument = _pdfService.CreateDocument();
+                if (_pdfDocument.PageCount > 0)
+                {
+                    _pdfService.SaveDocument(destinationPath, _pdfDocument);
+                    _pdfDocument = _pdfService.CreateDocument();
+                    _sequenceFileNames.Clear();
+                }
             }
         }
 
         private void TimerCallback(object target)
         {
             _logger.Debug("The next page has timed out. Starting new document.");
-            StartNewDocument();
+            StartNewDocument(GetDestinationPath());
         }
 
         private async Task Initialize(string sourceFolderPath, CancellationToken token)

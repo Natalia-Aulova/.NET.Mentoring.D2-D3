@@ -7,14 +7,14 @@ namespace WindowsService.FileHandler
 {
     internal class FileHandlerService : ServiceControl
     {
-        private readonly IFileWatcherFactory _watcherFactory;
+        private readonly IFileHandlerFactory _fileHandlerFactory;
         private readonly ISettingsProvider _settingsProvider;
         private readonly ILogger _logger;
-        private IFileWatcher[] _fileWatchers;
+        private IFileHandler[] _fileWatchers;
         
-        public FileHandlerService(IFileWatcherFactory watcherFactory, ISettingsProvider settingsProvider, ILogger logger)
+        public FileHandlerService(IFileHandlerFactory watcherFactory, ISettingsProvider settingsProvider, ILogger logger)
         {
-            _watcherFactory = watcherFactory;
+            _fileHandlerFactory = watcherFactory;
             _settingsProvider = settingsProvider;
             _logger = logger;
         }
@@ -30,15 +30,15 @@ namespace WindowsService.FileHandler
             var destinationFolderPath = _settingsProvider.GetSetting("DestinationFolderPath");
             var timeout = int.Parse(_settingsProvider.GetSetting("PageTimeout")) * 1000;
 
-            _fileWatchers = new IFileWatcher[sourceFolderPaths.Length];
+            _fileWatchers = new IFileHandler[sourceFolderPaths.Length];
 
             try
             {
                 for (int i = 0; i < sourceFolderPaths.Length; i++)
                 {
-                    var watcher = _watcherFactory.GetWatcher();
-                    watcher.Start(sourceFolderPaths[i], destinationFolderPath, timeout);
-                    _fileWatchers[i] = watcher;
+                    var handler = _fileHandlerFactory.GetHandler(i);
+                    handler.Start(sourceFolderPaths[i], destinationFolderPath, timeout);
+                    _fileWatchers[i] = handler;
                 }
             }
             catch (Exception ex)
