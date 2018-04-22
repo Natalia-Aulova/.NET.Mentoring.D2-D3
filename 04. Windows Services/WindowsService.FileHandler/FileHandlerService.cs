@@ -10,11 +10,11 @@ namespace WindowsService.FileHandler
         private readonly IFileHandlerFactory _fileHandlerFactory;
         private readonly ISettingsProvider _settingsProvider;
         private readonly ILogger _logger;
-        private IFileHandler[] _fileWatchers;
+        private IFileHandler[] _fileHandlers;
         
-        public FileHandlerService(IFileHandlerFactory watcherFactory, ISettingsProvider settingsProvider, ILogger logger)
+        public FileHandlerService(IFileHandlerFactory handlerFactory, ISettingsProvider settingsProvider, ILogger logger)
         {
-            _fileHandlerFactory = watcherFactory;
+            _fileHandlerFactory = handlerFactory;
             _settingsProvider = settingsProvider;
             _logger = logger;
         }
@@ -30,7 +30,7 @@ namespace WindowsService.FileHandler
             var destinationFolderPath = _settingsProvider.GetSetting("DestinationFolderPath");
             var timeout = int.Parse(_settingsProvider.GetSetting("PageTimeout")) * 1000;
 
-            _fileWatchers = new IFileHandler[sourceFolderPaths.Length];
+            _fileHandlers = new IFileHandler[sourceFolderPaths.Length];
 
             try
             {
@@ -38,7 +38,7 @@ namespace WindowsService.FileHandler
                 {
                     var handler = _fileHandlerFactory.GetHandler(i);
                     handler.Start(sourceFolderPaths[i], destinationFolderPath, timeout);
-                    _fileWatchers[i] = handler;
+                    _fileHandlers[i] = handler;
                 }
             }
             catch (Exception ex)
@@ -58,12 +58,12 @@ namespace WindowsService.FileHandler
 
             try
             {
-                for (int i = 0; i < _fileWatchers.Length; i++)
+                for (int i = 0; i < _fileHandlers.Length; i++)
                 {
-                    _fileWatchers[i].Stop();
+                    _fileHandlers[i].Stop();
                 }
 
-                _fileWatchers = null;
+                _fileHandlers = null;
             }
             catch (Exception ex)
             {

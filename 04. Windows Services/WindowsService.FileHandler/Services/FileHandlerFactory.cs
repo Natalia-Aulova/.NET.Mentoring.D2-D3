@@ -1,5 +1,4 @@
-﻿using System;
-using NLog;
+﻿using NLog;
 using WindowsService.FileHandler.Interfaces;
 
 namespace WindowsService.FileHandler.Services
@@ -15,9 +14,9 @@ namespace WindowsService.FileHandler.Services
             _pdfService = pdfService;
         }
 
-        public IFileHandler GetHandler(int loggerNumber)
+        public IFileHandler GetHandler(int handlerNumber)
         {
-            var loggerName = $"{nameof(FileHandler)} {loggerNumber}";
+            var loggerName = $"{nameof(FileHandler)} {handlerNumber}";
             return new FileHandler(_nameHelper, _pdfService, LogManager.GetLogger(loggerName));
         }
     }

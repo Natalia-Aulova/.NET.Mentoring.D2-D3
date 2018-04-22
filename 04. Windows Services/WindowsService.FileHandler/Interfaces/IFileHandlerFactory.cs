@@ -2,6 +2,6 @@
 {
     public interface IFileHandlerFactory
     {
-        IFileHandler GetHandler(int loggerNumber);
+        IFileHandler GetHandler(int handlerNumber);
     }
 }
