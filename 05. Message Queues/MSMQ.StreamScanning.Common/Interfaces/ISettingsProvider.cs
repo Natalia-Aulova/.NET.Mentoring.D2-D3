@@ -2,6 +2,28 @@
 {
     public interface ISettingsProvider
     {
-        string GetSetting(string key);
+        string GetBrokenFolderName();
+
+        string GetDestinationFolderPath();
+
+        string GetNameTemplate();
+
+        int GetPageTimeout();
+
+        int GetRetryCount();
+
+        int GetRetryDelay();
+
+        string[] GetSourceFolderPaths();
+
+        string[] GetSupportedExtensions();
+
+        string GetMessageQueueName();
+
+        string GetDownloadDestinationFolder();
+
+        string GetCentralMessageQueueName();
+
+        string GetCentralMessageQueueMachine();
     }
 }

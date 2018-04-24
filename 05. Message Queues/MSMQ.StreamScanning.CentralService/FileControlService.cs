@@ -29,7 +29,7 @@ namespace MSMQ.StreamScanning.CentralService
         {
             _logger.Info("The file control service is starting.");
 
-            var queueName = _settingsProvider.GetSetting("MessageQueueName");
+            var queueName = _settingsProvider.GetMessageQueueName();
             var queuePath = MessageQueueHelper.GetQueuePath(queueName);
 
             var messageTypes = new[]

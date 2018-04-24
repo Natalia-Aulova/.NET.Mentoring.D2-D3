@@ -15,7 +15,7 @@ namespace MSMQ.StreamScanning.CentralService.Services
 
         public IDownloadClient GetClient(string url)
         {
-            var destinationFolder = _settingsProvider.GetSetting("DownloadDestinationFolder");
+            var destinationFolder = _settingsProvider.GetDownloadDestinationFolder();
             return new DownloadClient(destinationFolder, url, LogManager.GetLogger(nameof(DownloadClient)));
         }
     }

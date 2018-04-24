@@ -23,11 +23,10 @@ namespace MSMQ.StreamScanning.Services
 
         public PdfService(ISettingsProvider settingsProvider, ILogger logger)
         {
+            _retryCount = settingsProvider.GetRetryCount();
+            _retryDelay = settingsProvider.GetRetryDelay() * 1000;
+            _brokenFolderName = settingsProvider.GetBrokenFolderName();
             _logger = logger;
-
-            _retryCount = int.Parse(settingsProvider.GetSetting("RetryCount"));
-            _retryDelay = int.Parse(settingsProvider.GetSetting("RetryDelay")) * 1000;
-            _brokenFolderName = settingsProvider.GetSetting("BrokenFolderName");
         }
 
         public PdfDocument CreateDocument()

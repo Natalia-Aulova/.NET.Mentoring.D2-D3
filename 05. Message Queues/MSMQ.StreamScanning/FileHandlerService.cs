@@ -31,17 +31,14 @@ namespace MSMQ.StreamScanning
         {
             _logger.Info("The file handler service is starting.");
 
-            var centralQueueName = _settingsProvider.GetSetting("CentralMessageQueueName");
-            var centralQueueMachine = _settingsProvider.GetSetting("CentralMessageQueueMachine");
+            var centralQueueName = _settingsProvider.GetCentralMessageQueueName();
+            var centralQueueMachine = _settingsProvider.GetCentralMessageQueueName();
             var centralQueuePath = MessageQueueHelper.GetQueuePath(centralQueueName, centralQueueMachine);
             _msmqSender = _msmqFactory.GetSender(centralQueuePath);
 
-            var sourceFolderPaths = _settingsProvider
-                .GetSetting("SourceFolderPaths")
-                .Split(new[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
-
-            var destinationFolderPath = _settingsProvider.GetSetting("DestinationFolderPath");
-            var timeout = int.Parse(_settingsProvider.GetSetting("PageTimeout")) * 1000;
+            var sourceFolderPaths = _settingsProvider.GetSourceFolderPaths();
+            var destinationFolderPath = _settingsProvider.GetDestinationFolderPath();
+            var timeout = _settingsProvider.GetPageTimeout() * 1000;
 
             _fileHandlers = new IFileHandler[sourceFolderPaths.Length];
 
