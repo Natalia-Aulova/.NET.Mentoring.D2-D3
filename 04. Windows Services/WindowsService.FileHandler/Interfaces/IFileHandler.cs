@@ -2,7 +2,7 @@
 {
     public interface IFileHandler
     {
-        void Start(string sourceFolderPath, string destinationFolderPath, int saveTimeout);
+        void Start(string sourceFolderPath, int saveTimeout);
 
         void Stop();
     }

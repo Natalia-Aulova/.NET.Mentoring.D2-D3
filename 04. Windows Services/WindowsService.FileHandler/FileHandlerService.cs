@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using NLog;
 using Topshelf;
 using WindowsService.FileHandler.Interfaces;
@@ -10,40 +12,35 @@ namespace WindowsService.FileHandler
         private readonly IFileHandlerFactory _fileHandlerFactory;
         private readonly ISettingsProvider _settingsProvider;
         private readonly ILogger _logger;
-        private IFileHandler[] _fileHandlers;
+        private List<IFileHandler> _fileHandlers;
         
         public FileHandlerService(IFileHandlerFactory handlerFactory, ISettingsProvider settingsProvider, ILogger logger)
         {
             _fileHandlerFactory = handlerFactory;
             _settingsProvider = settingsProvider;
             _logger = logger;
+            _fileHandlers = new List<IFileHandler>();
         }
 
         public bool Start(HostControl hostControl)
         {
             _logger.Info("The file handler service is starting.");
 
-            var sourceFolderPaths = _settingsProvider
-                .GetSetting("SourceFolderPaths")
-                .Split(new[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
-
-            var destinationFolderPath = _settingsProvider.GetSetting("DestinationFolderPath");
-            var timeout = int.Parse(_settingsProvider.GetSetting("PageTimeout")) * 1000;
-
-            _fileHandlers = new IFileHandler[sourceFolderPaths.Length];
+            var sourceFolderPaths = _settingsProvider.GetSourceFolderPaths();
+            var timeout = _settingsProvider.GetPageTimeout() * 1000;
 
             try
             {
-                for (int i = 0; i < sourceFolderPaths.Length; i++)
+                _fileHandlers = sourceFolderPaths.Select(sourceFolderPath =>
                 {
-                    var handler = _fileHandlerFactory.GetHandler(i);
-                    handler.Start(sourceFolderPaths[i], destinationFolderPath, timeout);
-                    _fileHandlers[i] = handler;
-                }
+                    var handler = _fileHandlerFactory.GetHandler();
+                    handler.Start(sourceFolderPath, timeout);
+                    return handler;
+                }).ToList();
             }
             catch (Exception ex)
             {
-                _logger.Error(ex);
+                _logger.Error(ex.Message);
                 throw;
             }
 
@@ -58,12 +55,8 @@ namespace WindowsService.FileHandler
 
             try
             {
-                for (int i = 0; i < _fileHandlers.Length; i++)
-                {
-                    _fileHandlers[i].Stop();
-                }
-
-                _fileHandlers = null;
+                _fileHandlers.ForEach(handler => handler.Stop());
+                _fileHandlers.Clear();
             }
             catch (Exception ex)
             {
