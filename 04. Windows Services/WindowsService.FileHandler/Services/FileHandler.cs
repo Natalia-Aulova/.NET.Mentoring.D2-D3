@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using NLog;
 using WindowsService.FileHandler.Interfaces;
 
@@ -10,8 +10,6 @@ namespace WindowsService.FileHandler.Services
 {
     public class FileHandler : IFileHandler
     {
-        private readonly CancellationTokenSource _tokenSource;
-
         private volatile int _sequenceNumber = 0;
         private ConcurrentBag<string> _sequenceFileNames;
 
@@ -26,7 +24,6 @@ namespace WindowsService.FileHandler.Services
 
         public FileHandler(INameHelper nameHelper, IPdfService pdfService, ILogger logger)
         {
-            _tokenSource = new CancellationTokenSource();
             _nameHelper = nameHelper;
             _pdfService = pdfService;
             _logger = logger;
@@ -36,7 +33,7 @@ namespace WindowsService.FileHandler.Services
             _fileSystemWatcher.IncludeSubdirectories = false;
         }
 
-        public async void Start(string sourceFolderPath, int saveTimeout)
+        public void Start(string sourceFolderPath, int saveTimeout)
         {
             _logger.Info("The file watcher is starting.");
 
@@ -49,44 +46,33 @@ namespace WindowsService.FileHandler.Services
 
             try
             {
-                await Initialize(sourceFolderPath, _tokenSource.Token);
-            }
-            catch (OperationCanceledException ex)
-            {
-                _logger.Warn(ex.Message);
+                Initialize(sourceFolderPath);
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, ex.Message);
+                _logger.Error(ex.Message);
                 throw;
             }
 
             _logger.Info("The file watcher has started.");
         }
 
-        public async void Stop()
+        public void Stop()
         {
             _logger.Info("The file watcher is stopping.");
-
-            _tokenSource.Cancel();
 
             _savingTimer.Change(Timeout.Infinite, 0);
 
             _fileSystemWatcher.EnableRaisingEvents = false;
             _fileSystemWatcher.Created -= FileSystemWatcher_Created;
 
-            await SaveDocument();
+            SaveDocument();
 
             _logger.Info("The file watcher has stopped.");
         }
 
-        private async void FileSystemWatcher_Created(object sender, FileSystemEventArgs e)
+        private void FileSystemWatcher_Created(object sender, FileSystemEventArgs e)
         {
-            if (_tokenSource.IsCancellationRequested)
-            {
-                return;
-            }
-
             if (!File.Exists(e.FullPath) || !_nameHelper.IsNameMatch(e.Name))
             {
                 return;
@@ -97,7 +83,7 @@ namespace WindowsService.FileHandler.Services
             if (number - _sequenceNumber != 1)
             {
                 _logger.Debug(@"""Jumping"" numbering has been detected. Saving the sequence to a document.");
-                await SaveDocument();
+                SaveDocument();
             }
 
             _logger.Debug("Adding new file to the sequence.");
@@ -108,17 +94,12 @@ namespace WindowsService.FileHandler.Services
             _savingTimer.Change(_timeout, _timeout);
         }
 
-        private async Task SaveDocument()
+        private void SaveDocument()
         {
-            var sequence = Interlocked.Exchange(ref _sequenceFileNames, new ConcurrentBag<string>());
-
             try
             {
-                await _pdfService.SaveDocument(sequence, GenerateUniqueFileName(), _tokenSource.Token);
-            }
-            catch (OperationCanceledException ex)
-            {
-                _logger.Warn(ex.Message);
+                var sequence = Interlocked.Exchange(ref _sequenceFileNames, new ConcurrentBag<string>());
+                _pdfService.SaveDocument(sequence.Reverse(), GenerateUniqueFileName());
             }
             catch (Exception ex)
             {
@@ -132,28 +113,23 @@ namespace WindowsService.FileHandler.Services
             return Guid.NewGuid().ToString();
         }
 
-        private async void TimerCallback(object target)
+        private void TimerCallback(object target)
         {
             _logger.Debug("The next page has timed out.");
-            await SaveDocument();
+            SaveDocument();
         }
 
-        private async Task Initialize(string sourceFolderPath, CancellationToken token)
+        private void Initialize(string sourceFolderPath)
         {
-            await Task.Factory.StartNew(() =>
+            foreach (var file in Directory.GetFiles(sourceFolderPath))
             {
-                foreach (var file in Directory.GetFiles(sourceFolderPath))
-                {
-                    token.ThrowIfCancellationRequested();
+                var eventArgs = new FileSystemEventArgs(
+                    WatcherChangeTypes.Created,
+                    Path.GetDirectoryName(file),
+                    Path.GetFileName(file));
 
-                    var eventArgs = new FileSystemEventArgs(
-                        WatcherChangeTypes.Created,
-                        Path.GetDirectoryName(file),
-                        Path.GetFileName(file));
-
-                    FileSystemWatcher_Created(this, eventArgs);
-                }
-            }, token);
+                FileSystemWatcher_Created(this, eventArgs);
+            }
         }
     }
 }

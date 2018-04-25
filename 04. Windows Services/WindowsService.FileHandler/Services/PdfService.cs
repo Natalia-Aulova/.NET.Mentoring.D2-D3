@@ -4,7 +4,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using NLog;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
@@ -31,47 +30,44 @@ namespace WindowsService.FileHandler.Services
             _logger = logger;
         }
 
-        public async Task SaveDocument(IEnumerable<string> filePaths, string destinationFileName, CancellationToken token)
+        public void SaveDocument(IEnumerable<string> filePaths, string destinationFileName)
         {
             if (filePaths == null || !filePaths.Any())
             {
                 return;
             }
 
-            await Task.Factory.StartNew(() =>
+            _logger.Debug("Creating new pdf document.");
+
+            using (var document = new PdfDocument())
             {
-                _logger.Debug("Creating new pdf document.");
+                var success = true;
 
-                using (var document = new PdfDocument())
+                foreach (var fileName in filePaths)
                 {
-                    var success = true;
-
-                    foreach (var fileName in filePaths)
+                    if (!AddImage(fileName, document))
                     {
-                        if (!AddImage(fileName, document))
-                        {
-                            success = false;
-                            break;
-                        }
+                        success = false;
+                        break;
                     }
-
-                    var destinatonFolderPath = _destinationFolderPath;
-
-                    if (!success)
-                    {
-                        _logger.Warn($"The sequnce is broken. Saving it to the broken folder.");
-
-                        destinatonFolderPath = Path.Combine(_destinationFolderPath, _brokenFolderName);
-                        var brokenSequenceFolder = Path.Combine(destinatonFolderPath, destinationFileName);
-                        CopyBrokenSequenceToFolder(filePaths, brokenSequenceFolder, token);
-                    }
-
-                    var destinatonPath = Path.Combine(destinatonFolderPath, string.Concat(destinationFileName, ".pdf"));
-                    _logger.Debug($"Saving the document to {destinatonPath}.");
-                    document.Save(destinatonPath);
-                    document.Close();
                 }
-            }, token);
+
+                var destinatonFolderPath = _destinationFolderPath;
+
+                if (!success)
+                {
+                    _logger.Warn($"The sequnce is broken. Saving it to the broken folder.");
+
+                    destinatonFolderPath = Path.Combine(_destinationFolderPath, _brokenFolderName);
+                    var brokenSequenceFolder = Path.Combine(destinatonFolderPath, destinationFileName);
+                    CopyBrokenSequenceToFolder(filePaths, brokenSequenceFolder);
+                }
+
+                var destinatonPath = Path.Combine(destinatonFolderPath, string.Concat(destinationFileName, ".pdf"));
+                _logger.Debug($"Saving the document to {destinatonPath}.");
+                document.Save(destinatonPath);
+                document.Close();
+            }
         }
         
         private bool AddImage(string imagePath, PdfDocument document)
@@ -111,10 +107,8 @@ namespace WindowsService.FileHandler.Services
             return success;
         }
 
-        private void CopyBrokenSequenceToFolder(IEnumerable<string> filePaths, string brokenSequenceFolder, CancellationToken token)
+        private void CopyBrokenSequenceToFolder(IEnumerable<string> filePaths, string brokenSequenceFolder)
         {
-            token.ThrowIfCancellationRequested();
-
             if (!Directory.Exists(brokenSequenceFolder))
             {
                 Directory.CreateDirectory(brokenSequenceFolder);
@@ -122,8 +116,6 @@ namespace WindowsService.FileHandler.Services
 
             foreach(var filePath in filePaths)
             {
-                token.ThrowIfCancellationRequested();
-
                 var destinationPath = Path.Combine(brokenSequenceFolder, Path.GetFileName(filePath));
 
                 _logger.Warn($"Broken sequence: copying {filePath} to {destinationPath}.");
