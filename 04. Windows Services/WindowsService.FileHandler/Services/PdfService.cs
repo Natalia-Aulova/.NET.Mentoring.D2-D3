@@ -52,20 +52,19 @@ namespace WindowsService.FileHandler.Services
                     }
                 }
 
-                var destinatonFolderPath = _destinationFolderPath;
-
-                if (!success)
+                if (success)
                 {
-                    _logger.Warn($"The sequnce is broken. Saving it to the broken folder.");
-
-                    destinatonFolderPath = Path.Combine(_destinationFolderPath, _brokenFolderName);
-                    var brokenSequenceFolder = Path.Combine(destinatonFolderPath, destinationFileName);
+                    var destinatonPath = Path.Combine(_destinationFolderPath, string.Concat(destinationFileName, ".pdf"));
+                    _logger.Debug($"Saving the document to {destinatonPath}.");
+                    document.Save(destinatonPath);
+                }
+                else
+                {
+                    var brokenSequenceFolder = Path.Combine(_destinationFolderPath, _brokenFolderName, destinationFileName);
+                    _logger.Warn($"The sequence is broken. Saving it to the broken folder ({brokenSequenceFolder}).");
                     CopyBrokenSequenceToFolder(filePaths, brokenSequenceFolder);
                 }
 
-                var destinatonPath = Path.Combine(destinatonFolderPath, string.Concat(destinationFileName, ".pdf"));
-                _logger.Debug($"Saving the document to {destinatonPath}.");
-                document.Save(destinatonPath);
                 document.Close();
             }
         }
