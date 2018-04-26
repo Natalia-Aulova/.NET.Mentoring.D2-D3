@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using MSMQ.StreamScanning.Common.Interfaces;
 using MSMQ.StreamScanning.Helpers;
 using MSMQ.StreamScanning.Interfaces;
@@ -19,23 +19,61 @@ namespace MSMQ.StreamScanning.Services
 
         private readonly int _retryCount;
         private readonly int _retryDelay;
+        private readonly string _destinationFolderPath;
         private readonly string _brokenFolderName;
 
         public PdfService(ISettingsProvider settingsProvider, ILogger logger)
         {
             _retryCount = settingsProvider.GetRetryCount();
             _retryDelay = settingsProvider.GetRetryDelay() * 1000;
+            _destinationFolderPath = settingsProvider.GetDestinationFolderPath();
             _brokenFolderName = settingsProvider.GetBrokenFolderName();
             _logger = logger;
         }
 
-        public PdfDocument CreateDocument()
+        public string SaveDocument(IEnumerable<string> filePaths, string destinationFileName)
         {
+            if (filePaths == null || !filePaths.Any())
+            {
+                return null;
+            }
+
             _logger.Debug("Creating new pdf document.");
-            return new PdfDocument();
+
+            using (var document = new PdfDocument())
+            {
+                var success = true;
+                string destinationPath = null;
+
+                foreach (var fileName in filePaths)
+                {
+                    if (!AddImage(fileName, document))
+                    {
+                        success = false;
+                        break;
+                    }
+                }
+
+                if (success)
+                {
+                    destinationPath = Path.Combine(_destinationFolderPath, string.Concat(destinationFileName, ".pdf"));
+                    _logger.Debug($"Saving the document to {destinationPath}.");
+                    document.Save(destinationPath);
+                }
+                else
+                {
+                    var brokenSequenceFolder = Path.Combine(_destinationFolderPath, _brokenFolderName, destinationFileName);
+                    _logger.Warn($"The sequence is broken. Saving it to the broken folder ({brokenSequenceFolder}).");
+                    CopyBrokenSequenceToFolder(filePaths, brokenSequenceFolder);
+                }
+
+                document.Close();
+
+                return destinationPath;
+            }
         }
 
-        public bool AddImage(string imagePath, PdfDocument document)
+        private bool AddImage(string imagePath, PdfDocument document)
         {
             bool success = true;
 
@@ -46,7 +84,7 @@ namespace MSMQ.StreamScanning.Services
 
                 if (!bytes.IsImage())
                 {
-                    _logger.Warn($"The file {imagePath} is not an image. Skipping the file.");
+                    _logger.Warn($"The file {imagePath} is not an image.");
                     success = false;
                     return;
                 }
@@ -72,44 +110,21 @@ namespace MSMQ.StreamScanning.Services
             return success;
         }
 
-        public void SaveDocument(string destinatonPath, PdfDocument document)
+        private void CopyBrokenSequenceToFolder(IEnumerable<string> filePaths, string brokenSequenceFolder)
         {
-            if (document.PageCount > 0)
+            if (!Directory.Exists(brokenSequenceFolder))
             {
-                _logger.Debug($"Saving the document to {destinatonPath}.");
-                document.Save(destinatonPath);
+                Directory.CreateDirectory(brokenSequenceFolder);
             }
 
-            document.Close();
-        }
-
-        public async Task CopyBrokenSequenceToFolder(IList<string> sequence, string pdfFilePath, string destinationFolderPath, CancellationToken token)
-        {
-            await Task.Factory.StartNew(() =>
+            foreach (var filePath in filePaths)
             {
-                token.ThrowIfCancellationRequested();
+                var destinationPath = Path.Combine(brokenSequenceFolder, Path.GetFileName(filePath));
 
-                var pdfFileName = Path.GetFileNameWithoutExtension(pdfFilePath);
-                var brokenFolderPath = Path.Combine(destinationFolderPath, _brokenFolderName, pdfFileName);
+                _logger.Warn($"Broken sequence: copying {filePath} to {destinationPath}.");
 
-                if (!Directory.Exists(brokenFolderPath))
-                {
-                    Directory.CreateDirectory(brokenFolderPath);
-                }
-
-                File.Move(pdfFilePath, Path.Combine(brokenFolderPath, Path.GetFileName(pdfFilePath)));
-
-                for (int i = 0; i < sequence.Count; i++)
-                {
-                    token.ThrowIfCancellationRequested();
-
-                    var destinationPath = Path.Combine(brokenFolderPath, Path.GetFileName(sequence[i]));
-
-                    _logger.Warn($"Broken sequence: copying {sequence[i]} to {destinationPath}.");
-
-                    CopyFile(sequence[i], destinationPath);
-                }
-            }, token);
+                CopyFile(filePath, destinationPath);
+            }
         }
 
         private void OpenFileWithRetries(string path, Action<Stream> action)
@@ -148,7 +163,7 @@ namespace MSMQ.StreamScanning.Services
             _logger.Debug($"The file {path} has been opened.");
 
             action(stream);
-            stream?.Dispose();
+            stream.Dispose();
         }
 
         private void CopyFile(string sourcePath, string destinationPath)

@@ -32,10 +32,5 @@ namespace MSMQ.StreamScanning.Helpers
 
             return int.Parse(match.Groups[1].Value);
         }
-
-        public string GenerateUniqueFileName(string extension)
-        {
-            return string.Concat(Guid.NewGuid().ToString(), ".", extension);
-        }
     }
 }

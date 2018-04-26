@@ -1,30 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
+using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using MSMQ.StreamScanning.Interfaces;
 using MSMQ.StreamScanning.Models;
 using NLog;
-using PdfSharp.Pdf;
 
 namespace MSMQ.StreamScanning.Services
 {
     public class FileHandler : IFileHandler
     {
-        private object lockObject = new object();
-
-        private readonly CancellationTokenSource _tokenSource;
-
         private volatile int _sequenceNumber = 0;
-        private readonly List<string> _sequenceFileNames;
-        private PdfDocument _pdfDocument;
+        private ConcurrentBag<string> _sequenceFileNames;
 
         private readonly INameHelper _nameHelper;
         private readonly IPdfService _pdfService;
         private readonly ILogger _logger;
 
-        private string _destinationFolderPath;
         private int _timeout;
 
         private FileSystemWatcher _fileSystemWatcher;
@@ -34,26 +27,18 @@ namespace MSMQ.StreamScanning.Services
 
         public FileHandler(INameHelper nameHelper, IPdfService pdfService, ILogger logger)
         {
-            _tokenSource = new CancellationTokenSource();
             _nameHelper = nameHelper;
             _pdfService = pdfService;
             _logger = logger;
-            _sequenceFileNames = new List<string>();
+            _sequenceFileNames = new ConcurrentBag<string>();
             _savingTimer = new Timer(TimerCallback);
             _fileSystemWatcher = new FileSystemWatcher();
             _fileSystemWatcher.IncludeSubdirectories = false;
         }
 
-        public async void Start(string sourceFolderPath, string destinationFolderPath, int saveTimeout)
+        public void Start(string sourceFolderPath, int saveTimeout)
         {
             _logger.Info("The file watcher is starting.");
-
-            _destinationFolderPath = destinationFolderPath;
-
-            lock (lockObject)
-            {
-                _pdfDocument = _pdfService.CreateDocument();
-            }
 
             _timeout = saveTimeout;
             _savingTimer.Change(_timeout, _timeout);
@@ -64,15 +49,11 @@ namespace MSMQ.StreamScanning.Services
 
             try
             {
-                await Initialize(sourceFolderPath, _tokenSource.Token);
-            }
-            catch (OperationCanceledException ex)
-            {
-                _logger.Warn(ex.Message);
+                Initialize(sourceFolderPath);
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, ex.Message);
+                _logger.Error(ex.Message);
                 throw;
             }
 
@@ -83,25 +64,18 @@ namespace MSMQ.StreamScanning.Services
         {
             _logger.Info("The file watcher is stopping.");
 
-            _tokenSource.Cancel();
-
             _savingTimer.Change(Timeout.Infinite, 0);
 
             _fileSystemWatcher.EnableRaisingEvents = false;
             _fileSystemWatcher.Created -= FileSystemWatcher_Created;
 
-            SaveDocument(GetDestinationPath(), false);
+            SaveDocument();
 
             _logger.Info("The file watcher has stopped.");
         }
 
-        private async void FileSystemWatcher_Created(object sender, FileSystemEventArgs e)
+        private void FileSystemWatcher_Created(object sender, FileSystemEventArgs e)
         {
-            if (_tokenSource.IsCancellationRequested)
-            {
-                return;
-            }
-
             if (!File.Exists(e.FullPath) || !_nameHelper.IsNameMatch(e.Name))
             {
                 return;
@@ -111,106 +85,59 @@ namespace MSMQ.StreamScanning.Services
 
             if (number - _sequenceNumber != 1)
             {
-                _logger.Debug(@"""Jumping"" numbering has been detected. Starting new document.");
-                SaveDocument(GetDestinationPath());
+                _logger.Debug(@"""Jumping"" numbering has been detected. Saving the sequence to a document.");
+                SaveDocument();
             }
 
-            _logger.Debug("Adding new file to the document.");
+            _logger.Debug("Adding new file to the sequence.");
 
-            bool success;
-
-            lock (lockObject)
-            {
-                _sequenceFileNames.Add(e.FullPath);
-                _sequenceNumber = number;
-                success = _pdfService.AddImage(e.FullPath, _pdfDocument);
-            }
-
-            if (!success)
-            {
-                _logger.Warn("Broken sequence has been detected.");
-                await HandleBrokenSequence();
-            }
+            _sequenceFileNames.Add(e.FullPath);
+            _sequenceNumber = number;
 
             _savingTimer.Change(_timeout, _timeout);
         }
 
-        private async Task HandleBrokenSequence()
+        private void SaveDocument()
         {
-            string[] brokenSequence;
-
-            lock (lockObject)
-            {
-                brokenSequence = new string[_sequenceFileNames.Count];
-                _sequenceFileNames.CopyTo(brokenSequence);
-            }
-
-            var pdfFilePath = GetDestinationPath();
-            SaveDocument(pdfFilePath);
-
             try
             {
-                await _pdfService.CopyBrokenSequenceToFolder(brokenSequence, pdfFilePath, _destinationFolderPath, _tokenSource.Token);
-            }
-            catch (OperationCanceledException ex)
-            {
-                _logger.Warn(ex.Message);
+                var sequence = Interlocked.Exchange(ref _sequenceFileNames, new ConcurrentBag<string>());
+                var destinationPath = _pdfService.SaveDocument(sequence.Reverse(), GenerateUniqueFileName());
+
+                if (destinationPath != null)
+                {
+                    DocumentSaved?.Invoke(this, new DocumentEventArgs(destinationPath));
+                }
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, ex.Message);
+                _logger.Error(ex.Message);
                 throw;
             }
         }
-        
-        private void SaveDocument(string destinationPath, bool startNew = true)
+
+        private string GenerateUniqueFileName()
         {
-            lock (lockObject)
-            {
-                if (_pdfDocument.PageCount <= 0)
-                {
-                    return;
-                }
-
-                _pdfService.SaveDocument(destinationPath, _pdfDocument);
-                _sequenceFileNames.Clear();
-
-                if (startNew)
-                {
-                    _pdfDocument = _pdfService.CreateDocument();
-                }
-            }
-
-            DocumentSaved?.Invoke(this, new DocumentEventArgs(destinationPath));
+            return Guid.NewGuid().ToString();
         }
 
         private void TimerCallback(object target)
         {
-            _logger.Debug("The next page has timed out. Starting new document.");
-            SaveDocument(GetDestinationPath());
+            _logger.Debug("The next page has timed out.");
+            SaveDocument();
         }
 
-        private async Task Initialize(string sourceFolderPath, CancellationToken token)
+        private void Initialize(string sourceFolderPath)
         {
-            await Task.Factory.StartNew(() =>
+            foreach (var file in Directory.GetFiles(sourceFolderPath))
             {
-                foreach (var file in Directory.GetFiles(sourceFolderPath))
-                {
-                    token.ThrowIfCancellationRequested();
+                var eventArgs = new FileSystemEventArgs(
+                    WatcherChangeTypes.Created,
+                    Path.GetDirectoryName(file),
+                    Path.GetFileName(file));
 
-                    var eventArgs = new FileSystemEventArgs(
-                        WatcherChangeTypes.Created,
-                        Path.GetDirectoryName(file),
-                        Path.GetFileName(file));
-
-                    FileSystemWatcher_Created(this, eventArgs);
-                }
-            }, token);
-        }
-
-        private string GetDestinationPath()
-        {
-            return Path.Combine(_destinationFolderPath, _nameHelper.GenerateUniqueFileName("pdf"));
+                FileSystemWatcher_Created(this, eventArgs);
+            }
         }
     }
 }

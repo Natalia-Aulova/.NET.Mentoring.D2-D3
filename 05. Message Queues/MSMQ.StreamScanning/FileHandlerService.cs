@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using MSMQ.StreamScanning.Common.Helpers;
 using MSMQ.StreamScanning.Common.Interfaces;
 using MSMQ.StreamScanning.Common.Models;
@@ -15,8 +17,7 @@ namespace MSMQ.StreamScanning
         private readonly IMessageQueueFactory _msmqFactory;
         private readonly ISettingsProvider _settingsProvider;
         private readonly ILogger _logger;
-
-        private IFileHandler[] _fileHandlers;
+        private List<IFileHandler> _fileHandlers;
         private IMessageQueueSender _msmqSender;
 
         public FileHandlerService(IFileHandlerFactory handlerFactory, IMessageQueueFactory msmqFactory, ISettingsProvider settingsProvider, ILogger logger)
@@ -25,6 +26,7 @@ namespace MSMQ.StreamScanning
             _msmqFactory = msmqFactory;
             _settingsProvider = settingsProvider;
             _logger = logger;
+            _fileHandlers = new List<IFileHandler>();
         }
 
         public bool Start(HostControl hostControl)
@@ -37,24 +39,21 @@ namespace MSMQ.StreamScanning
             _msmqSender = _msmqFactory.GetSender(centralQueuePath);
 
             var sourceFolderPaths = _settingsProvider.GetSourceFolderPaths();
-            var destinationFolderPath = _settingsProvider.GetDestinationFolderPath();
             var timeout = _settingsProvider.GetPageTimeout() * 1000;
-
-            _fileHandlers = new IFileHandler[sourceFolderPaths.Length];
 
             try
             {
-                for (int i = 0; i < sourceFolderPaths.Length; i++)
+                _fileHandlers = sourceFolderPaths.Select(sourceFolderPath =>
                 {
-                    var handler = _fileHandlerFactory.GetHandler(i);
+                    var handler = _fileHandlerFactory.GetHandler();
                     handler.DocumentSaved += OnDocumentSaved;
-                    handler.Start(sourceFolderPaths[i], destinationFolderPath, timeout);
-                    _fileHandlers[i] = handler;
-                }
+                    handler.Start(sourceFolderPath, timeout);
+                    return handler;
+                }).ToList();
             }
             catch (Exception ex)
             {
-                _logger.Error(ex);
+                _logger.Error(ex.Message);
                 throw;
             }
 
@@ -69,17 +68,17 @@ namespace MSMQ.StreamScanning
 
             try
             {
-                for (int i = 0; i < _fileHandlers.Length; i++)
+                _fileHandlers.ForEach(handler => 
                 {
-                    _fileHandlers[i].DocumentSaved -= OnDocumentSaved;
-                    _fileHandlers[i].Stop();
-                }
+                    handler.DocumentSaved -= OnDocumentSaved;
+                    handler.Stop();
+                });
 
-                _fileHandlers = null;
+                _fileHandlers.Clear();
             }
             catch (Exception ex)
             {
-                _logger.Error(ex);
+                _logger.Error(ex.Message);
                 throw;
             }
 

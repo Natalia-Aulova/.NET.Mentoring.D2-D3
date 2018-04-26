@@ -5,7 +5,5 @@
         bool IsNameMatch(string fileName);
 
         int GetFileNameNumber(string fileName);
-
-        string GenerateUniqueFileName(string extension);
     }
 }
