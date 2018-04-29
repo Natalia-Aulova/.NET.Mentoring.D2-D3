@@ -7,6 +7,8 @@ namespace MSMQ.StreamScanning.Interfaces
     {
         event EventHandler<DocumentEventArgs> DocumentSaved;
 
+        ServiceActivity CurrentActivity { get; }
+
         void Start(string sourceFolderPath, int saveTimeout);
 
         void Stop();

@@ -25,5 +25,9 @@
         string GetCentralMessageQueueName();
 
         string GetCentralMessageQueueMachine();
+
+        int GetReportingTimeout();
+
+        string GetInputServiceStatusesFile();
     }
 }

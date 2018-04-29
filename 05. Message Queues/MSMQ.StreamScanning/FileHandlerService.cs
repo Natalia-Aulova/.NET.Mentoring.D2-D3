@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using MSMQ.StreamScanning.Common.Helpers;
 using MSMQ.StreamScanning.Common.Interfaces;
 using MSMQ.StreamScanning.Common.Models;
@@ -19,6 +20,8 @@ namespace MSMQ.StreamScanning
         private readonly ILogger _logger;
         private List<IFileHandler> _fileHandlers;
         private IMessageQueueSender _msmqSender;
+        private Timer _reportingTimer;
+        private int _pageTimeout;
 
         public FileHandlerService(IFileHandlerFactory handlerFactory, IMessageQueueFactory msmqFactory, ISettingsProvider settingsProvider, ILogger logger)
         {
@@ -27,6 +30,7 @@ namespace MSMQ.StreamScanning
             _settingsProvider = settingsProvider;
             _logger = logger;
             _fileHandlers = new List<IFileHandler>();
+            _reportingTimer = new Timer(ReportingTimerCallback);
         }
 
         public bool Start(HostControl hostControl)
@@ -39,7 +43,8 @@ namespace MSMQ.StreamScanning
             _msmqSender = _msmqFactory.GetSender(centralQueuePath);
 
             var sourceFolderPaths = _settingsProvider.GetSourceFolderPaths();
-            var timeout = _settingsProvider.GetPageTimeout() * 1000;
+            _pageTimeout = _settingsProvider.GetPageTimeout() * 1000;
+            var reportingTimeout = _settingsProvider.GetReportingTimeout() * 1000;
 
             try
             {
@@ -47,7 +52,7 @@ namespace MSMQ.StreamScanning
                 {
                     var handler = _fileHandlerFactory.GetHandler();
                     handler.DocumentSaved += OnDocumentSaved;
-                    handler.Start(sourceFolderPath, timeout);
+                    handler.Start(sourceFolderPath, _pageTimeout);
                     return handler;
                 }).ToList();
             }
@@ -57,6 +62,8 @@ namespace MSMQ.StreamScanning
                 throw;
             }
 
+            _reportingTimer.Change(reportingTimeout, reportingTimeout);
+
             _logger.Info("The file handler service has started.");
 
             return true;
@@ -65,6 +72,8 @@ namespace MSMQ.StreamScanning
         public bool Stop(HostControl hostControl)
         {
             _logger.Info("The file handler service is stopping.");
+
+            _reportingTimer.Change(Timeout.Infinite, 0);
 
             try
             {
@@ -93,6 +102,36 @@ namespace MSMQ.StreamScanning
             {
                 FilePath = e.FilePath
             });
+        }
+
+        private void ReportingTimerCallback(object target)
+        {
+            _msmqSender.Send(new ServiceInfoMessage
+            {
+                MachineName = Environment.MachineName,
+                CurrentServiceActivity = GetCurrentStatus(),
+                PageTimeout = _pageTimeout
+            });
+        }
+
+        private string GetCurrentStatus()
+        {
+            if (_fileHandlers.Any(x => x.CurrentActivity == ServiceActivity.Saving))
+            {
+                return ServiceActivityMessages.Saving;
+            }
+
+            var handlerStatus = _fileHandlers.FirstOrDefault()?.CurrentActivity;
+
+            switch (handlerStatus)
+            {
+                case ServiceActivity.Starting:
+                    return ServiceActivityMessages.Starting;
+                case ServiceActivity.Stopping:
+                    return ServiceActivityMessages.Stopping;
+                default:
+                    return ServiceActivityMessages.Waiting;
+            }
         }
     }
 }

@@ -11,6 +11,7 @@ namespace MSMQ.StreamScanning.Services
 {
     public class FileHandler : IFileHandler
     {
+        private volatile ServiceActivity _currentActivity;
         private volatile int _sequenceNumber = 0;
         private ConcurrentBag<string> _sequenceFileNames;
 
@@ -24,6 +25,8 @@ namespace MSMQ.StreamScanning.Services
         private Timer _savingTimer;
 
         public event EventHandler<DocumentEventArgs> DocumentSaved;
+
+        public ServiceActivity CurrentActivity => _currentActivity;
 
         public FileHandler(INameHelper nameHelper, IPdfService pdfService, ILogger logger)
         {
@@ -39,6 +42,8 @@ namespace MSMQ.StreamScanning.Services
         public void Start(string sourceFolderPath, int saveTimeout)
         {
             _logger.Info("The file watcher is starting.");
+
+            ChangeStatus(ServiceActivity.Starting);
 
             _timeout = saveTimeout;
             _savingTimer.Change(_timeout, _timeout);
@@ -57,6 +62,8 @@ namespace MSMQ.StreamScanning.Services
                 throw;
             }
 
+            ChangeStatus(ServiceActivity.Waiting);
+
             _logger.Info("The file watcher has started.");
         }
 
@@ -64,12 +71,16 @@ namespace MSMQ.StreamScanning.Services
         {
             _logger.Info("The file watcher is stopping.");
 
+            ChangeStatus(ServiceActivity.Stopping);
+
             _savingTimer.Change(Timeout.Infinite, 0);
 
             _fileSystemWatcher.EnableRaisingEvents = false;
             _fileSystemWatcher.Created -= FileSystemWatcher_Created;
 
             SaveDocument();
+
+            ChangeStatus(ServiceActivity.Stopped);
 
             _logger.Info("The file watcher has stopped.");
         }
@@ -99,6 +110,8 @@ namespace MSMQ.StreamScanning.Services
 
         private void SaveDocument()
         {
+            ChangeStatus(ServiceActivity.Saving);
+
             try
             {
                 var sequence = Interlocked.Exchange(ref _sequenceFileNames, new ConcurrentBag<string>());
@@ -114,6 +127,8 @@ namespace MSMQ.StreamScanning.Services
                 _logger.Error(ex.Message);
                 throw;
             }
+
+            ChangeStatus(ServiceActivity.Waiting);
         }
 
         private string GenerateUniqueFileName()
@@ -138,6 +153,11 @@ namespace MSMQ.StreamScanning.Services
 
                 FileSystemWatcher_Created(this, eventArgs);
             }
+        }
+
+        private void ChangeStatus(ServiceActivity status)
+        {
+            _currentActivity = status;
         }
     }
 }

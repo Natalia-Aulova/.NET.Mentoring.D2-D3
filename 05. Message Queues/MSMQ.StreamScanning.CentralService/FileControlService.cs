@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using MSMQ.StreamScanning.CentralService.Interfaces;
 using MSMQ.StreamScanning.Common.Helpers;
 using MSMQ.StreamScanning.Common.Interfaces;
@@ -14,6 +15,7 @@ namespace MSMQ.StreamScanning.CentralService
         private readonly ISettingsProvider _settingsProvider;
         private readonly ILogger _logger;
         private readonly IMessageHandler[] _messageHandlers;
+        private readonly Type[] _messageTypes;
 
         private IMessageQueueListener _msmqListener;
 
@@ -23,6 +25,7 @@ namespace MSMQ.StreamScanning.CentralService
             _settingsProvider = settingsProvider;
             _logger = logger;
             _messageHandlers = messageHandlers;
+            _messageTypes = _messageHandlers.Select(x => x.MessageType).ToArray();
         }
 
         public bool Start(HostControl hostControl)
@@ -32,14 +35,7 @@ namespace MSMQ.StreamScanning.CentralService
             var queueName = _settingsProvider.GetMessageQueueName();
             var queuePath = MessageQueueHelper.GetQueuePath(queueName);
 
-            var messageTypes = new[]
-            {
-                typeof(AddSubscriberMessage),
-                typeof(FileInfoMessage),
-                typeof(ServiceInfoMessage)
-            };
-
-            _msmqListener = _msmqFactory.GetListener(queuePath, messageTypes);
+            _msmqListener = _msmqFactory.GetListener(queuePath, _messageTypes);
             _msmqListener.MessageReceived += OnMessageReceived;
             _msmqListener.Start();
 
@@ -72,7 +68,7 @@ namespace MSMQ.StreamScanning.CentralService
 
             if (handler == null)
             {
-                _logger.Warn($"Unable to process the message of the type {e.GetType()}");
+                _logger.Warn($"Unable to process the message of the type {message.GetType()}");
                 return;
             }
 

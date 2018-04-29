@@ -23,27 +23,27 @@ namespace MSMQ.StreamScanning.Common.Providers
 
         public int GetPageTimeout()
         {
-            return int.Parse(Get("PageTimeout"));
+            return GetInt("PageTimeout");
         }
 
         public int GetRetryCount()
         {
-            return int.Parse(Get("RetryCount"));
+            return GetInt("RetryCount");
         }
 
         public int GetRetryDelay()
         {
-            return int.Parse(Get("RetryDelay"));
+            return GetInt("RetryDelay");
         }
 
         public string[] GetSourceFolderPaths()
         {
-            return Get("SourceFolderPaths").Split(new[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
+            return GetArray("SourceFolderPaths", "|");
         }
 
         public string[] GetSupportedExtensions()
         {
-            return Get("SupportedExtensions").Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+            return GetArray("SupportedExtensions", ",");
         }
 
         public string GetMessageQueueName()
@@ -64,6 +64,26 @@ namespace MSMQ.StreamScanning.Common.Providers
         public string GetCentralMessageQueueMachine()
         {
             return Get("CentralMessageQueueMachine");
+        }
+
+        public int GetReportingTimeout()
+        {
+            return GetInt("ReportingTimeout");
+        }
+
+        public string GetInputServiceStatusesFile()
+        {
+            return Get("InputServiceStatusesFile");
+        }
+
+        private int GetInt(string key)
+        {
+            return int.Parse(Get(key));
+        }
+
+        private string[] GetArray(string key, string separator)
+        {
+            return Get(key).Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
         }
 
         private string Get(string key)

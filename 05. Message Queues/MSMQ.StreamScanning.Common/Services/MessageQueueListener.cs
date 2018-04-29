@@ -35,6 +35,7 @@ namespace MSMQ.StreamScanning.Common.Services
         {
             _listeningEnabled = false;
             _queue.ReceiveCompleted -= OnReceiveCompleted;
+            _queue.Close();
         }
 
         private void StartListening()

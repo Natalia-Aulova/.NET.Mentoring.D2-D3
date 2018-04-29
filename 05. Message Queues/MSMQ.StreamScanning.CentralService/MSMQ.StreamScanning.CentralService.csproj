@@ -67,6 +67,7 @@
     <Compile Include="Services\DownloadClientFactory.cs" />
     <Compile Include="Services\FileInfoMessageHandler.cs" />
     <Compile Include="Services\MessageHandler.cs" />
+    <Compile Include="Services\ServiceInfoMessageHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

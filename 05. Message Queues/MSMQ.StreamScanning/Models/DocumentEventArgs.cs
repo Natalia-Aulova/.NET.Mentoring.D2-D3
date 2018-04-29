@@ -1,6 +1,8 @@
-﻿namespace MSMQ.StreamScanning.Models
+﻿using System;
+
+namespace MSMQ.StreamScanning.Models
 {
-    public class DocumentEventArgs
+    public class DocumentEventArgs : EventArgs
     {
         public string FilePath { get; }
 

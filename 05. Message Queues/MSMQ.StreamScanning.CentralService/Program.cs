@@ -1,4 +1,5 @@
-﻿using MSMQ.StreamScanning.CentralService.Services;
+﻿using MSMQ.StreamScanning.CentralService.Interfaces;
+using MSMQ.StreamScanning.CentralService.Services;
 using MSMQ.StreamScanning.Common.Providers;
 using MSMQ.StreamScanning.Common.Services;
 using NLog;
@@ -15,9 +16,10 @@ namespace MSMQ.StreamScanning.CentralService
             var downloadFactory = new DownloadClientFactory(settingsProvider);
             var logger = LogManager.GetLogger(nameof(FileControlService));
 
-            var messageHandlers = new[]
+            var messageHandlers = new IMessageHandler[]
             {
-                new FileInfoMessageHandler(downloadFactory, LogManager.GetLogger(nameof(FileInfoMessageHandler)))
+                new FileInfoMessageHandler(downloadFactory, LogManager.GetLogger(nameof(FileInfoMessageHandler))),
+                new ServiceInfoMessageHandler(settingsProvider, LogManager.GetLogger(nameof(ServiceInfoMessageHandler)))
             };
 
             HostFactory.Run(x =>
