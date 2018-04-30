@@ -20,6 +20,7 @@ namespace MSMQ.StreamScanning
         private readonly ILogger _logger;
         private List<IFileHandler> _fileHandlers;
         private IMessageQueueSender _msmqSender;
+        private IMessageQueueListener _msmqListener;
         private Timer _reportingTimer;
         private int _pageTimeout;
 
@@ -30,21 +31,21 @@ namespace MSMQ.StreamScanning
             _settingsProvider = settingsProvider;
             _logger = logger;
             _fileHandlers = new List<IFileHandler>();
-            _reportingTimer = new Timer(ReportingTimerCallback);
+            _reportingTimer = new Timer(ReportStatus);
         }
 
         public bool Start(HostControl hostControl)
         {
             _logger.Info("The file handler service is starting.");
 
-            var centralQueueName = _settingsProvider.GetCentralMessageQueueName();
-            var centralQueueMachine = _settingsProvider.GetCentralMessageQueueName();
-            var centralQueuePath = MessageQueueHelper.GetQueuePath(centralQueueName, centralQueueMachine);
-            _msmqSender = _msmqFactory.GetSender(centralQueuePath);
+            var queueName = _settingsProvider.GetMessageQueueName();
+            var queuePath = MessageQueueHelper.GetQueuePath(queueName);
+
+            InitializeCentralQueueSender(queuePath);
+            InitializeQueueListener(queuePath);
 
             var sourceFolderPaths = _settingsProvider.GetSourceFolderPaths();
-            _pageTimeout = _settingsProvider.GetPageTimeout() * 1000;
-            var reportingTimeout = _settingsProvider.GetReportingTimeout() * 1000;
+            _pageTimeout = _settingsProvider.GetPageTimeout();
 
             try
             {
@@ -62,6 +63,7 @@ namespace MSMQ.StreamScanning
                 throw;
             }
 
+            var reportingTimeout = _settingsProvider.GetReportingTimeout() * 1000;
             _reportingTimer.Change(reportingTimeout, reportingTimeout);
 
             _logger.Info("The file handler service has started.");
@@ -73,6 +75,7 @@ namespace MSMQ.StreamScanning
         {
             _logger.Info("The file handler service is stopping.");
 
+            _msmqListener.Stop();
             _reportingTimer.Change(Timeout.Infinite, 0);
 
             try
@@ -104,7 +107,27 @@ namespace MSMQ.StreamScanning
             });
         }
 
-        private void ReportingTimerCallback(object target)
+        private void OnMessageReceived(object sender, MessageEventArgs e)
+        {
+            if (e.MessageBody is UpdateStatusMessage)
+            {
+                _logger.Info($"The command {nameof(UpdateStatusMessage)} has been received.");
+                ReportStatus(null);
+                return;
+            }
+
+            if (e.MessageBody is UpdatePageTimeoutMessage)
+            {
+                _pageTimeout = ((UpdatePageTimeoutMessage)e.MessageBody).Timeout;
+                _logger.Info($"The command {nameof(UpdatePageTimeoutMessage)} has been received. New page timeout: {_pageTimeout} seconds.");
+                _fileHandlers.ForEach(handler => handler.ChangePageTimeout(_pageTimeout));
+                return;
+            }
+
+            _logger.Warn($"Unable to process the message of the type {e.MessageBody.GetType()}");
+        }
+
+        private void ReportStatus(object target)
         {
             _msmqSender.Send(new ServiceInfoMessage
             {
@@ -132,6 +155,31 @@ namespace MSMQ.StreamScanning
                 default:
                     return ServiceActivityMessages.Waiting;
             }
+        }
+
+        private void InitializeCentralQueueSender(string currentQueuePath)
+        {
+            var centralQueueName = _settingsProvider.GetCentralMessageQueueName();
+            var centralQueueMachine = _settingsProvider.GetCentralMessageQueueMachine();
+            var centralQueuePath = MessageQueueHelper.GetQueuePath(centralQueueName, centralQueueMachine);
+
+            _msmqSender = _msmqFactory.GetSender(centralQueuePath);
+            _msmqSender.Send(new AddSubscriberMessage
+            {
+                SubscriberQueue = currentQueuePath
+            });
+        }
+
+        private void InitializeQueueListener(string queuePath)
+        {
+            _msmqListener = _msmqFactory.GetListener(queuePath, new[]
+            {
+                typeof(UpdateStatusMessage),
+                typeof(UpdatePageTimeoutMessage)
+            });
+
+            _msmqListener.MessageReceived += OnMessageReceived;
+            _msmqListener.Start();
         }
     }
 }

@@ -12,5 +12,7 @@ namespace MSMQ.StreamScanning.Interfaces
         void Start(string sourceFolderPath, int saveTimeout);
 
         void Stop();
+
+        void ChangePageTimeout(int newTimeout);
     }
 }

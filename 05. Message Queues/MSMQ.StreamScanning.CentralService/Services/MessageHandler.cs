@@ -17,7 +17,7 @@ namespace MSMQ.StreamScanning.CentralService.Services
             HandleMessage((T)message);
         }
 
-        public abstract void Stop();
+        public virtual void Stop() { }
 
         protected abstract void HandleMessage(T message);
     }

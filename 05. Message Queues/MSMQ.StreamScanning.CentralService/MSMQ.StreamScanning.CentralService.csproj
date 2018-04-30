@@ -58,16 +58,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileControlService.cs" />
+    <Compile Include="Interfaces\ICommandParser.cs" />
+    <Compile Include="Interfaces\ICommandSender.cs" />
     <Compile Include="Interfaces\IDownloadClient.cs" />
     <Compile Include="Interfaces\IDownloadClientFactory.cs" />
     <Compile Include="Interfaces\IMessageHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\CommandParser.cs" />
     <Compile Include="Services\DownloadClient.cs" />
     <Compile Include="Services\DownloadClientFactory.cs" />
     <Compile Include="Services\FileInfoMessageHandler.cs" />
     <Compile Include="Services\MessageHandler.cs" />
     <Compile Include="Services\ServiceInfoMessageHandler.cs" />
+    <Compile Include="Services\CommandSender.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

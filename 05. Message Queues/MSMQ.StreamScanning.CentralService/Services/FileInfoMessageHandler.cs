@@ -28,6 +28,8 @@ namespace MSMQ.StreamScanning.CentralService.Services
 
         protected override async void HandleMessage(FileInfoMessage message)
         {
+            _logger.Debug($"File info message has been received. File path: {message.FilePath}");
+
             var client = _downloadFactory.GetClient($"file://{message.FilePath}");
             _downloadClients.Add(client);
 

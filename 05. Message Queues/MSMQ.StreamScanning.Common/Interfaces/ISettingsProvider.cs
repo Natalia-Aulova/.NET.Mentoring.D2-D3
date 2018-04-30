@@ -29,5 +29,7 @@
         int GetReportingTimeout();
 
         string GetInputServiceStatusesFile();
+
+        string GetCommandFileName();
     }
 }

@@ -15,6 +15,8 @@ namespace MSMQ.StreamScanning.CentralService
             var msmqFactory = new MessageQueueFactory();
             var downloadFactory = new DownloadClientFactory(settingsProvider);
             var logger = LogManager.GetLogger(nameof(FileControlService));
+            var commandParser = new CommandParser();
+            var commandSender = new CommandSender(msmqFactory, commandParser, settingsProvider, LogManager.GetLogger(nameof(CommandSender)));
 
             var messageHandlers = new IMessageHandler[]
             {
@@ -24,7 +26,7 @@ namespace MSMQ.StreamScanning.CentralService
 
             HostFactory.Run(x =>
             {
-                x.Service(() => new FileControlService(msmqFactory, settingsProvider, logger, messageHandlers));
+                x.Service(() => new FileControlService(msmqFactory, settingsProvider, logger, commandSender, messageHandlers));
                 x.SetServiceName("MSMQ.StreamScanning.CentralService");
                 x.SetDisplayName("MSMQ StreamScanning Central Service");
                 x.StartAutomaticallyDelayed();

@@ -14,18 +14,28 @@ namespace MSMQ.StreamScanning.CentralService
         private readonly IMessageQueueFactory _msmqFactory;
         private readonly ISettingsProvider _settingsProvider;
         private readonly ILogger _logger;
+        private readonly ICommandSender _commandSender;
         private readonly IMessageHandler[] _messageHandlers;
         private readonly Type[] _messageTypes;
 
         private IMessageQueueListener _msmqListener;
 
-        public FileControlService(IMessageQueueFactory msmqFactory, ISettingsProvider settingsProvider, ILogger logger, IMessageHandler[] messageHandlers)
+        public FileControlService(
+            IMessageQueueFactory msmqFactory, 
+            ISettingsProvider settingsProvider, 
+            ILogger logger, 
+            ICommandSender commandSender, 
+            IMessageHandler[] messageHandlers)
         {
             _msmqFactory = msmqFactory;
             _settingsProvider = settingsProvider;
             _logger = logger;
+            _commandSender = commandSender;
             _messageHandlers = messageHandlers;
-            _messageTypes = _messageHandlers.Select(x => x.MessageType).ToArray();
+            _messageTypes = _messageHandlers
+                .Select(x => x.MessageType)
+                .Union(new[] { typeof(AddSubscriberMessage) })
+                .ToArray();
         }
 
         public bool Start(HostControl hostControl)
@@ -38,6 +48,7 @@ namespace MSMQ.StreamScanning.CentralService
             _msmqListener = _msmqFactory.GetListener(queuePath, _messageTypes);
             _msmqListener.MessageReceived += OnMessageReceived;
             _msmqListener.Start();
+            _commandSender.Start();
 
             _logger.Info("The file control service has started.");
 
@@ -48,12 +59,15 @@ namespace MSMQ.StreamScanning.CentralService
         {
             _logger.Info("The file control service is stopping.");
 
+            _msmqListener.MessageReceived -= OnMessageReceived;
             _msmqListener.Stop();
             
             foreach(var handler in _messageHandlers)
             {
                 handler.Stop();
             }
+
+            _commandSender.Stop();
 
             _logger.Info("The file control service has stopped.");
 
@@ -63,6 +77,14 @@ namespace MSMQ.StreamScanning.CentralService
         private void OnMessageReceived(object sender, MessageEventArgs e)
         {
             var message = e.MessageBody;
+
+            if (message is AddSubscriberMessage)
+            {
+                var subscriber = ((AddSubscriberMessage)message).SubscriberQueue;
+                _logger.Info($"Adding the subscriber: {subscriber}");
+                _commandSender.AddSubscriber(subscriber);
+                return;
+            }
 
             var handler = _messageHandlers.FirstOrDefault(x => x.CanHandle(message));
 

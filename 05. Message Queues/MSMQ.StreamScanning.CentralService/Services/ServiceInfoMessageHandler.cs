@@ -17,10 +17,10 @@ namespace MSMQ.StreamScanning.CentralService.Services
             _logger = logger;
         }
 
-        public override void Stop() { }
-
         protected override void HandleMessage(ServiceInfoMessage message)
         {
+            _logger.Debug($"Service info message has been received from {message.MachineName}");
+
             try
             {
                 using (var writer = File.AppendText(_statusFile))

@@ -49,8 +49,10 @@
     <Compile Include="Interfaces\ISettingsProvider.cs" />
     <Compile Include="Models\AddSubscriberMessage.cs" />
     <Compile Include="Models\FileInfoMessage.cs" />
+    <Compile Include="Models\ICentralCommand.cs" />
     <Compile Include="Models\MessageEventArgs.cs" />
     <Compile Include="Models\ServiceInfoMessage.cs" />
+    <Compile Include="Models\UpdatePageTimeoutMessage.cs" />
     <Compile Include="Models\UpdateStatusMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\SettingsProvider.cs" />

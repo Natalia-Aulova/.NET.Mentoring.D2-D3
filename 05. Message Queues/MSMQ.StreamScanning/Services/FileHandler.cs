@@ -45,7 +45,7 @@ namespace MSMQ.StreamScanning.Services
 
             ChangeStatus(ServiceActivity.Starting);
 
-            _timeout = saveTimeout;
+            _timeout = saveTimeout * 1000;
             _savingTimer.Change(_timeout, _timeout);
 
             _fileSystemWatcher.Path = sourceFolderPath;
@@ -83,6 +83,12 @@ namespace MSMQ.StreamScanning.Services
             ChangeStatus(ServiceActivity.Stopped);
 
             _logger.Info("The file watcher has stopped.");
+        }
+
+        public void ChangePageTimeout(int newTimeout)
+        {
+            _timeout = newTimeout * 1000;
+            _savingTimer.Change(_timeout, _timeout);
         }
 
         private void FileSystemWatcher_Created(object sender, FileSystemEventArgs e)

@@ -76,6 +76,11 @@ namespace MSMQ.StreamScanning.Common.Providers
             return Get("InputServiceStatusesFile");
         }
 
+        public string GetCommandFileName()
+        {
+            return Get("CommandFileName");
+        }
+
         private int GetInt(string key)
         {
             return int.Parse(Get(key));
