@@ -60,6 +60,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="books_invalid.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="books_valid.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
