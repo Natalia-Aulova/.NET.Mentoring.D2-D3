@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="XmlValidatorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="XslTransformerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AdvancedXml\AdvancedXml.csproj">

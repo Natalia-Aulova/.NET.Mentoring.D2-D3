@@ -4,7 +4,7 @@
     <isbn>0-596-00103-7</isbn>
     <author>Löwy, Juval</author>
     <title>COM and .NET Component Services</title>
-    <genre>Computer</genre>
+    <genre>Science Fiction</genre>
     <publisher>O'Reilly</publisher>
     <publish_date>2001-09-01</publish_date>
     <description>
@@ -15,6 +15,7 @@
     <registration_date>2016-01-05</registration_date>
   </book>
   <book id="bk102">
+    <isbn>978-0-596-00103-7</isbn>
     <author>Ralls, Kim</author>
     <title>Midnight Rain</title>
     <genre>Fantasy</genre>
