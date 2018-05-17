@@ -252,6 +252,7 @@
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home\Index_v2.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
