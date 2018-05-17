@@ -71,6 +71,22 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "07. Debugging", "07. Debugg
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrackMe.CodeGenerator", "07. Debugging\CrackMe.CodeGenerator\CrackMe.CodeGenerator.csproj", "{A93167A5-4E1C-4CDC-A3B2-60F9DA745682}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "08. Profiling and Optimization", "08. Profiling and Optimization", "{98CC17E3-333F-41EF-AB4D-82A233FC9548}"
+	ProjectSection(SolutionItems) = preProject
+		08. Profiling and Optimization\ReadMe.txt = 08. Profiling and Optimization\ReadMe.txt
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PasswordHashGenerator.Tests", "08. Profiling and Optimization\PasswordHashGenerator.Tests\PasswordHashGenerator.Tests.csproj", "{892A6E46-B53B-4A4F-B16E-7F6B16088975}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProfileSample", "08. Profiling and Optimization\ProfileSample\ProfileSample.csproj", "{FF559A2F-212A-4C6B-8408-4C44C49E321D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DumpHomework", "DumpHomework", "{0FD2EF13-AA5C-4291-96EB-4FA875E85A8A}"
+	ProjectSection(SolutionItems) = preProject
+		08. Profiling and Optimization\DumpHomework\MyCalculator.exe = 08. Profiling and Optimization\DumpHomework\MyCalculator.exe
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameOfLife", "08. Profiling and Optimization\GameOfLife\GameOfLife.csproj", "{BDFD7BAE-9744-44C4-8259-B3757F24B245}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -133,6 +149,18 @@ Global
 		{A93167A5-4E1C-4CDC-A3B2-60F9DA745682}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A93167A5-4E1C-4CDC-A3B2-60F9DA745682}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A93167A5-4E1C-4CDC-A3B2-60F9DA745682}.Release|Any CPU.Build.0 = Release|Any CPU
+		{892A6E46-B53B-4A4F-B16E-7F6B16088975}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{892A6E46-B53B-4A4F-B16E-7F6B16088975}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{892A6E46-B53B-4A4F-B16E-7F6B16088975}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{892A6E46-B53B-4A4F-B16E-7F6B16088975}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF559A2F-212A-4C6B-8408-4C44C49E321D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF559A2F-212A-4C6B-8408-4C44C49E321D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF559A2F-212A-4C6B-8408-4C44C49E321D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF559A2F-212A-4C6B-8408-4C44C49E321D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDFD7BAE-9744-44C4-8259-B3757F24B245}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDFD7BAE-9744-44C4-8259-B3757F24B245}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDFD7BAE-9744-44C4-8259-B3757F24B245}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDFD7BAE-9744-44C4-8259-B3757F24B245}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -152,5 +180,9 @@ Global
 		{AB25DF74-2BDF-43BE-A9FE-94A2931C6309} = {03286D29-C4B7-4E33-8828-B7570CD5DCB9}
 		{B468151D-81E1-4F63-91E7-238766D582F9} = {03286D29-C4B7-4E33-8828-B7570CD5DCB9}
 		{A93167A5-4E1C-4CDC-A3B2-60F9DA745682} = {03B2B3F2-7269-4A7A-BA44-A0D13D1C73B5}
+		{892A6E46-B53B-4A4F-B16E-7F6B16088975} = {98CC17E3-333F-41EF-AB4D-82A233FC9548}
+		{FF559A2F-212A-4C6B-8408-4C44C49E321D} = {98CC17E3-333F-41EF-AB4D-82A233FC9548}
+		{0FD2EF13-AA5C-4291-96EB-4FA875E85A8A} = {98CC17E3-333F-41EF-AB4D-82A233FC9548}
+		{BDFD7BAE-9744-44C4-8259-B3757F24B245} = {98CC17E3-333F-41EF-AB4D-82A233FC9548}
 	EndGlobalSection
 EndGlobal
