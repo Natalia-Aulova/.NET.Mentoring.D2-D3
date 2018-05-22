@@ -22,7 +22,7 @@ namespace GameOfLife
         {
             drawCanvas = c;
             rnd = new Random();
-            SizeX = (int) (c.Width / 5);
+            SizeX = (int)(c.Width / 5);
             SizeY = (int)(c.Height / 5);
             cells = new Cell[SizeX, SizeY];
             nextGenerationCells = new Cell[SizeX, SizeY];
@@ -34,9 +34,14 @@ namespace GameOfLife
                 {
                     cells[i, j] = new Cell(i, j, 0, GetRandomPattern());
                     nextGenerationCells[i, j] = new Cell(i, j, 0, false);
-                    InitCellVisual(i, j);
+
+                    var cellVisual = GetCellVisual(cells[i, j]);
+                    cellsVisuals[i, j] = cellVisual;
+                    drawCanvas.Children.Add(cellVisual);
                 }
             }
+
+            drawCanvas.MouseMove += MouseMove;
         }
 
         public void Update()
@@ -63,53 +68,53 @@ namespace GameOfLife
             return rnd.NextDouble() > 0.8;
         }
 
-        private void InitCellVisual(int i, int j)
+        private Ellipse GetCellVisual(Cell cell)
         {
-            double left = cells[i, j].PositionX;
-            double top = cells[i, j].PositionY;
+            double left = cell.PositionX;
+            double top = cell.PositionY;
 
-            cellsVisuals[i, j] = new Ellipse();
-            cellsVisuals[i, j].Width = cellsVisuals[i, j].Height = 5;
-            cellsVisuals[i, j].Margin = new Thickness(left, top, 0, 0);
-            cellsVisuals[i, j].Fill = GetCellVisualInterior(i, j);
-            drawCanvas.Children.Add(cellsVisuals[i, j]);
-
-            cellsVisuals[i, j].MouseMove += MouseMove;
-            cellsVisuals[i, j].MouseLeftButtonDown += MouseMove;
+            return new Ellipse
+            {
+                Width = 5,
+                Height = 5,
+                Margin = new Thickness(left, top, 0, 0),
+                Fill = GetCellVisualInterior(cell)
+            };
         }
 
         private void MouseMove(object sender, MouseEventArgs e)
         {
-            var cellVisual = sender as Ellipse;
-            
-            int i = (int) cellVisual.Margin.Left / 5;
-            int j = (int) cellVisual.Margin.Top / 5;
-
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                if (!cells[i, j].IsAlive)
+                if (e.OriginalSource is Ellipse cellVisual)
                 {
-                    cells[i, j].IsAlive = true;
-                    cells[i, j].Age = 0;
-                    cellVisual.Fill = Brushes.White;
+                    int i = (int)cellVisual.Margin.Left / 5;
+                    int j = (int)cellVisual.Margin.Top / 5;
+
+                    if (!cells[i, j].IsAlive)
+                    {
+                        cells[i, j].IsAlive = true;
+                        cells[i, j].Age = 0;
+                        cellVisual.Fill = Brushes.White;
+                    }
                 }
             }
         }
 
-        private void UpdateCellVisualInterior(int i, int j)
+        private void UpdateCellVisualInterior(Cell cell, Ellipse cellVisual)
         {
-            var cellBrush = GetCellVisualInterior(i, j);
+            var cellBrush = GetCellVisualInterior(cell);
 
-            if (cellBrush != cellsVisuals[i, j].Fill)
+            if (cellBrush != cellVisual.Fill)
             {
-                cellsVisuals[i, j].Fill = cellBrush;
+                cellVisual.Fill = cellBrush;
             }
         }
 
-        private Brush GetCellVisualInterior(int i, int j)
+        private Brush GetCellVisualInterior(Cell cell)
         {
-            return cells[i, j].IsAlive
-                ? (cells[i, j].Age < 2 ? Brushes.White : Brushes.DarkGray)
+            return cell.IsAlive
+                ? (cell.Age < 2 ? Brushes.White : Brushes.DarkGray)
                 : Brushes.Gray;
         }
 
@@ -119,9 +124,13 @@ namespace GameOfLife
             {
                 for (int j = 0; j < SizeY; j++)
                 {
-                    cells[i, j].IsAlive = nextGenerationCells[i, j].IsAlive;
-                    cells[i, j].Age = nextGenerationCells[i, j].Age;
-                    UpdateCellVisualInterior(i, j);
+                    var currentCell = cells[i, j];
+                    var nextGenerationCell = nextGenerationCells[i, j];
+
+                    currentCell.IsAlive = nextGenerationCell.IsAlive;
+                    currentCell.Age = nextGenerationCell.Age;
+
+                    UpdateCellVisualInterior(currentCell, cellsVisuals[i, j]);
                 }
             }
         }
