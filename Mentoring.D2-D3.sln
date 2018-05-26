@@ -88,6 +88,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DumpHomework", "DumpHomewor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameOfLife", "08. Profiling and Optimization\GameOfLife\GameOfLife.csproj", "{BDFD7BAE-9744-44C4-8259-B3757F24B245}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "09. Aspect-oriented programming", "09. Aspect-oriented programming", "{C512EEFA-824F-4F48-8282-42BCA2AD3116}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AOP.WindowsService.FileHandler", "09. Aspect-oriented programming\AOP.WindowsService.FileHandler\AOP.WindowsService.FileHandler.csproj", "{7E2497FB-BA28-41CA-B134-1E74DC0247A7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -162,6 +166,10 @@ Global
 		{BDFD7BAE-9744-44C4-8259-B3757F24B245}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDFD7BAE-9744-44C4-8259-B3757F24B245}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDFD7BAE-9744-44C4-8259-B3757F24B245}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E2497FB-BA28-41CA-B134-1E74DC0247A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E2497FB-BA28-41CA-B134-1E74DC0247A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E2497FB-BA28-41CA-B134-1E74DC0247A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E2497FB-BA28-41CA-B134-1E74DC0247A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -185,5 +193,6 @@ Global
 		{FF559A2F-212A-4C6B-8408-4C44C49E321D} = {98CC17E3-333F-41EF-AB4D-82A233FC9548}
 		{0FD2EF13-AA5C-4291-96EB-4FA875E85A8A} = {98CC17E3-333F-41EF-AB4D-82A233FC9548}
 		{BDFD7BAE-9744-44C4-8259-B3757F24B245} = {98CC17E3-333F-41EF-AB4D-82A233FC9548}
+		{7E2497FB-BA28-41CA-B134-1E74DC0247A7} = {C512EEFA-824F-4F48-8282-42BCA2AD3116}
 	EndGlobalSection
 EndGlobal
