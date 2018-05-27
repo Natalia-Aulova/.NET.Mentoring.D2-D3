@@ -89,6 +89,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameOfLife", "08. Profiling and Optimization\GameOfLife\GameOfLife.csproj", "{BDFD7BAE-9744-44C4-8259-B3757F24B245}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "09. Aspect-oriented programming", "09. Aspect-oriented programming", "{C512EEFA-824F-4F48-8282-42BCA2AD3116}"
+	ProjectSection(SolutionItems) = preProject
+		09. Aspect-oriented programming\ReadMe.txt = 09. Aspect-oriented programming\ReadMe.txt
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AOP.WindowsService.FileHandler", "09. Aspect-oriented programming\AOP.WindowsService.FileHandler\AOP.WindowsService.FileHandler.csproj", "{7E2497FB-BA28-41CA-B134-1E74DC0247A7}"
 EndProject

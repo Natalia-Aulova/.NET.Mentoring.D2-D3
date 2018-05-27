@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using AOP.WindowsService.FileHandler.Infrastructure;
 using AOP.WindowsService.FileHandler.Interfaces;
 using NLog;
 
@@ -33,6 +34,7 @@ namespace AOP.WindowsService.FileHandler.Services
             _fileSystemWatcher.IncludeSubdirectories = false;
         }
 
+        [LoggingAspect]
         public void Start(string sourceFolderPath, int saveTimeout)
         {
             _logger.Info("The file watcher is starting.");
@@ -57,6 +59,7 @@ namespace AOP.WindowsService.FileHandler.Services
             _logger.Info("The file watcher has started.");
         }
 
+        [LoggingAspect]
         public void Stop()
         {
             _logger.Info("The file watcher is stopping.");
@@ -71,6 +74,7 @@ namespace AOP.WindowsService.FileHandler.Services
             _logger.Info("The file watcher has stopped.");
         }
 
+        [LoggingAspect]
         private void FileSystemWatcher_Created(object sender, FileSystemEventArgs e)
         {
             if (!File.Exists(e.FullPath) || !_nameHelper.IsNameMatch(e.Name))
@@ -94,6 +98,7 @@ namespace AOP.WindowsService.FileHandler.Services
             _savingTimer.Change(_timeout, _timeout);
         }
 
+        [LoggingAspect]
         private void SaveDocument()
         {
             try
@@ -108,17 +113,20 @@ namespace AOP.WindowsService.FileHandler.Services
             }
         }
 
+        [LoggingAspect]
         private string GenerateUniqueFileName()
         {
             return Guid.NewGuid().ToString();
         }
 
+        [LoggingAspect]
         private void TimerCallback(object target)
         {
             _logger.Debug("The next page has timed out.");
             SaveDocument();
         }
 
+        [LoggingAspect]
         private void Initialize(string sourceFolderPath)
         {
             foreach (var file in Directory.GetFiles(sourceFolderPath))
