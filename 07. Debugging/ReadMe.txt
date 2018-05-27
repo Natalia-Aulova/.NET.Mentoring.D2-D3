@@ -3,6 +3,7 @@ and using the debugging techniques find the correct code and write a code genera
 
 Notes:
 
+In Developer Command Prompt for VS 2017:
 1) To get IL code of the .exe file:
 ildasm /out="<path_to_output_file.il>" "<path_to_input_file.exe>"
 
